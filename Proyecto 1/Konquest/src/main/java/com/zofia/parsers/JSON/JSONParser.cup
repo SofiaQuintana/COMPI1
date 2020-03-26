@@ -1,0 +1,109 @@
+package com.zofia.parsers.JSON;
+import java_cup.runtime.Symbol;
+import com.zofia.lexers.JSONLexer;
+import com.zofia.mapstructure.StructureDriver;
+import javax.swing.JTextArea;
+
+parser code {:
+    private JTextArea area;
+    private StructureDriver structure = new StructureDriver();
+
+    public JSONParser(JSONLexer lexer, JTextArea area) {
+        super(lexer);
+        this.area = area;
+    }
+
+    public void syntax_error(Symbol symbol) {
+        this.area.append("error de sintaxis en: " + symbol.value + " " + symbol.sym + " " + sym.terminalNames[symbol.sym] + "\n");
+    }
+    
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     MAPA, id, tamaño, filas, columnas, alAzar, TRUE, FALSE, planetasNeutrales, mapaCiego,
+                    acumular, NEUTRALES, mostrarNaves, mostrarEstadisticas, produccion, finalizacion,
+                    PLANETAS, nombre, naves, porcentajeMuertes, PLANETAS_NEUTRALES, JUGADORES, planetas,
+                    tipo, HUMANO, FACIL, DIFICIL, CURLYBRACESO, CURLYBRACESC, COLON, COMMA, BRACKETO,
+                    BRACKETC, COMILLA, NAME, PLAYER, ID;
+terminal Integer    INTEGER;
+terminal Double     PERCENTAGE;
+
+/* No Terminales... */
+non terminal        starting, mapStructure, sizeStructure, randomMap, boolean, blindMap, 
+                    accumulation, neutralStructure, optionalAttributes, showSpaceships, endingAttribute,
+                    showStadistics, planetAttributes, planetEnding, planetStructure, planets, neutrals, 
+                    players, playerStructure, playerEnding, playerAttributes, ownedPlanets,
+                    symbol, type, ending;
+
+/* Grammar */
+start with starting;
+
+starting ::= CURLYBRACESO mapStructure optionalAttributes endingAttribute planets neutrals players ending
+             | error:e BRACKETC CURLYBRACESC {: syntax_error((Symbol) e); :}
+             ;
+mapStructure ::= MAPA COLON CURLYBRACESO id COLON ID:i COMMA sizeStructure
+                 {: structure.setMapId(i); :}
+                 ;
+sizeStructure ::= tamaño COLON CURLYBRACESO filas COLON INTEGER:i COMMA columnas COLON INTEGER:e CURLYBRACESC COMMA
+                  {: structure.setMapLimits(i, e); :}
+                  ;
+randomMap ::= alAzar:a COLON boolean COMMA planetasNeutrales COLON INTEGER:i COMMA
+              {: structure.setOptionalAttributes(a, 0); 
+                 structure.setNeutralPlanets(i); :}
+              ;
+boolean ::= FALSE {: structure.setTemporal(false); :}
+            | TRUE {: structure.setTemporal(true); :}
+            ;
+blindMap ::= mapaCiego:m COLON boolean COMMA
+             {: structure.setOptionalAttributes(m, 0); :}
+             ;
+accumulation ::= acumular:a COLON boolean COMMA
+                 {: structure.setOptionalAttributes(a, 0); :}
+                 ;
+neutralStructure ::= NEUTRALES COLON CURLYBRACESO showSpaceships showStadistics
+                     produccion:p COLON INTEGER:i CURLYBRACESC COMMA
+                     {: structure.setNeutrals(p, i); :}
+                     ;
+showSpaceships ::= mostrarNaves:m COLON boolean COMMA
+                   {: structure.setNeutrals(m, 0); :}
+                   ;
+showStadistics ::= mostrarEstadisticas:m COLON boolean COMMA
+                   {: structure.setNeutrals(m, 0); :}
+                   ;
+optionalAttributes ::= randomMap optionalAttributes
+                       | blindMap optionalAttributes
+                       | accumulation optionalAttributes
+                       | neutralStructure
+                       ;
+endingAttribute ::= finalizacion:f COLON INTEGER:i endingAttribute
+                    {: structure.setOptionalAttributes(f, i); :}
+                    | CURLYBRACESC COMMA
+                    ;
+planetAttributes ::= CURLYBRACESO nombre COLON NAME:n COMMA naves COLON INTEGER:i COMMA produccion COLON INTEGER:e COMMA
+                     porcentajeMuertes COLON PERCENTAGE:p CURLYBRACESC
+                     {: structure.setPlanetAttributes(n, i, e, p); :}
+                     ;
+planetEnding ::= COMMA planetStructure  
+                 | BRACKETC COMMA 
+                 ;
+planetStructure ::= planetAttributes planetEnding;
+planets ::= PLANETAS COLON BRACKETO planetStructure;
+neutrals ::= PLANETAS_NEUTRALES COLON BRACKETO planetStructure;
+players ::= JUGADORES COLON BRACKETO playerStructure;
+playerStructure ::= playerAttributes playerEnding;
+playerEnding ::= COMMA playerStructure
+                 | BRACKETC
+                 ;
+playerAttributes ::= CURLYBRACESO nombre COLON PLAYER:p {: structure.setPlayerName(p); :} COMMA planetas COLON BRACKETO ownedPlanets
+                     ; 
+ownedPlanets ::= NAME:n symbol 
+                 {: structure.setOwnedPlanets(n); :}
+                 ;
+symbol ::= COMMA ownedPlanets
+           | CURLYBRACESC COMMA tipo COLON type CURLYBRACESC
+           ;
+type ::= HUMANO:h {: structure.setPlayerAttributes(h); :}
+         | FACIL:f {: structure.setPlayerAttributes(f); :}
+         | DIFICIL:d {: structure.setPlayerAttributes(d); :}
+         ;
+ending ::= CURLYBRACESC;

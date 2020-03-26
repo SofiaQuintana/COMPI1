@@ -1,0 +1,91 @@
+package com.zofia.lexers;
+import java_cup.runtime.*;
+import com.zofia.parsers.JSON.sym;
+
+%%//Area Break
+
+%public
+%class JSONLexer
+%cup
+%cupdebug
+%line
+%column
+
+/*Identifiers*/
+Letter = [a-zA-Z]
+Sign = [_$]
+Number = [1-9]
+LineTerminator = \r|\n|\r\n 
+WhiteSpace = {LineTerminator} | [ \t\f\b]
+Id = ("\"")({Letter}|{Sign})({Letter}|{Number}|{Sign}|"-")*("\"")
+Integer = ({Number})({Number}|"0")*
+Percentage = ("0.")({Number}|"0")+
+Player = ({Letter})({Letter}|{Number}){1,9}
+Name = ({Letter}){1,3}
+
+%{
+    private Symbol symbol(int type) {
+        return new Symbol(type, yyline+1, yycolumn+1);
+    }
+
+    private Symbol symbol(int type, Object value) {
+        return new Symbol(type, yyline+1, yycolumn+1, value);
+    }
+
+    private void printToken(String token){
+        System.out.println(token);
+    }
+%}
+
+%%//Area Break
+
+/*Lexical Rules*/
+
+<YYINITIAL> {
+    /* Keywords */
+    "MAPA"                      { return symbol(sym.MAPA, "MAPA"); }
+    "id"                        { return symbol(sym.id, "id");}
+    "tamaño"                    { return symbol(sym.tamaño, "tamaño");}
+    "filas"                     { return symbol(sym.filas, "filas");}
+    "columnas"                  { return symbol(sym.columnas, "columnas");}
+    "alAzar"                    { return symbol(sym.alAzar, "alAzar");}
+    "true"                      { return symbol(sym.TRUE, "true");}
+    "false"                     { return symbol(sym.FALSE, "false");}
+    "planetasNeutrales"         { return symbol(sym.planetasNeutrales, "planetasNeutrales");}
+    "mapaCiego"                 { return symbol(sym.mapaCiego, "mapaCiego");}
+    "acumular"                  { return symbol(sym.acumular, "acumular");}
+    "NEUTRALES"                 { return symbol(sym.NEUTRALES, "NEUTRALES");}
+    "mostrarNaves"              { return symbol(sym.mostrarNaves, "mostrarNaves");}
+    "mostrarEstadisticas"       { return symbol(sym.mostrarEstadisticas, "mostrarEstadisticas");}
+    "produccion"                { return symbol(sym.produccion, "produccion");}
+    "finalizacion"              { return symbol(sym.finalizacion, "finalizacion");}
+    "PLANETAS"                  { return symbol(sym.PLANETAS, "PLANETAS");}
+    "nombre"                    { return symbol(sym.nombre, "nombre");}
+    "naves"                     { return symbol(sym.naves, "naves");}
+    "porcentajeMuertes"         { return symbol(sym.porcentajeMuertes, "porcentajeMuertes");}
+    "PLANETAS_NEUTRALES"        { return symbol(sym.PLANETAS_NEUTRALES, "PLANETAS_NEUTRALES");}
+    "JUGADORES"                 { return symbol(sym.JUGADORES, "JUGADORES");}
+    "planetas"                  { return symbol(sym.planetas, "planetas");}
+    "tipo"                      { return symbol(sym.tipo, "tipo");}
+    "HUMANO"                    { return symbol(sym.HUMANO, "HUMANO");}
+    "FACIL"                     { return symbol(sym.FACIL, "FACIL");}
+    "DIFICIL"                   { return symbol(sym.DIFICIL, "DIFICIL");}
+    /* Signs */
+    "{"                         { return symbol(sym.CURLYBRACESO, "{");}
+    "}"                         { return symbol(sym.CURLYBRACESC, "}");}
+    ":"                         { return symbol(sym.COLON, ":");}
+    ","                         { return symbol(sym.COMMA, ",");}
+    "["                         { return symbol(sym.BRACKETO, "[");}
+    "]"                         { return symbol(sym.BRACKETC, "]");}
+    "\""                        { return symbol(sym.COMILLA, "\"");}
+    /* Others */
+    {Name}                      { return symbol(sym.NAME, yytext());}
+    {Player}                    { return symbol(sym.PLAYER, yytext());}    
+    {Id}                        { return symbol(sym.ID, yytext());}
+    {Integer}                   { return symbol(sym.INTEGER, yytext());}
+    {Percentage}                { return symbol(sym.PERCENTAGE, yytext());}
+    {WhiteSpace}                { /*do nothing*/ }
+    .                           { printToken("ERROR"); }
+}
+
+    <<EOF>>                     { return symbol(EOF); } 
