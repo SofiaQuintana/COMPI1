@@ -1,0 +1,82 @@
+package com.zofia.parsers.queries;
+import java_cup.runtime.Symbol;
+import com.zofia.lexer.QueryLexer;
+import javax.swing.JTextArea;
+
+parser code {:
+    private JTextArea area;
+
+    public QueriesParser(QueryLexer lexer, JTextArea textArea) {
+        super(lexer);
+        this.area = textArea;
+    }
+
+    public void setAction(String type) {
+        this.area.append("->" + type + " realizada con exito");
+    }
+
+    public void syntax_error(Symbol symbol) {
+        this.area.append("error sintaxis en: " + symbol.value + " " + symbol.sym + " " + sym.terminalNames[symbol.sym] + "\n"
+                        +"linea: " + symbol.left + " columna: " + symbol.right + "\n");
+    }
+
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     SELECCIONAR, FILTRAR, INSERTAR, ACTUALIZAR, ASIGNAR, ELIMINAR, EN, AND, OR,
+                    MENORQUE, MAYORQUE, MENORIGUAL, MAYORIGUAL, DIFERENTEDE, EQUAL, SEMICOLON,
+                    COLUMN, PATH, ASSIGNATION, OPARENTESIS, CPARENTESIS, VALORES, COMMA;
+terminal Integer    NUMBER;
+
+/* No Terminales... */
+non terminal        instruction, selection, insert, update, delete, filter, values, relationalOperations,
+                    logicalOperations, valuesStructure;
+
+/* Grammar */
+start with instruction;
+
+instruction ::= SELECCIONAR:e selection SEMICOLON {: setAction(e); :}
+                | INSERTAR:e insert SEMICOLON {: setAction(e); :}
+                | ACTUALIZAR:e update SEMICOLON {:setAction(e);:}
+                | ELIMINAR:e delete SEMICOLON {: setAction(e); :}
+                | error:e SEMICOLON {: syntax_error((Symbol) e); :}
+                ;
+
+selection ::= COLUMN EN PATH {::}
+              | COLUMN EN PATH filter
+              ;
+
+insert ::=  EN PATH OPARENTESIS COLUMN CPARENTESIS VALORES OPARENTESIS valuesStructure CPARENTESIS
+            | EN PATH VALORES OPARENTESIS valuesStructure CPARENTESIS
+            ;
+
+update ::= EN PATH ASIGNAR COLUMN EQUAL values filter
+           | EN PATH ASIGNAR COLUMN EQUAL values
+           ;
+
+delete ::= EN PATH filter
+           | EN PATH 
+           ;
+valuesStructure ::= values 
+                    | COMMA values
+                    ;
+
+values ::= ASSIGNATION 
+           | NUMBER
+           ;
+
+filter ::= FILTRAR COLUMN relationalOperations values
+           | FILTRAR COLUMN relationalOperations values logicalOperations
+           ;
+
+relationalOperations ::= EQUAL
+                         | MENORQUE
+                         | MAYORQUE
+                         | MENORIGUAL
+                         | MAYORIGUAL
+                         | DIFERENTEDE
+                         ;
+
+logicalOperations ::= AND COLUMN relationalOperations values
+                      | OR COLUMN relationalOperations values
+                      ;

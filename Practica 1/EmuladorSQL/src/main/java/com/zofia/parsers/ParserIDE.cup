@@ -1,0 +1,61 @@
+package com.zofia.parsers;
+import java_cup.runtime.Symbol;
+import javax.swing.JTextArea;
+import java.util.List;
+import java.util.ArrayList;
+import com.zofia.lexers.Node;
+import com.zofia.lexers.LexerIDE;
+
+
+parser code {:
+    private JTextArea area;
+    private List<Node> list = new ArrayList<>();
+    public parser(LexerIDE lexer, JTextArea textArea) {
+        super(lexer);
+        this.area = textArea;
+    }
+
+    public void setAction(String type, String message, String action) {
+        this.area.append("token: " + type + message + "\n");
+    }
+
+    public void syntax_error(Symbol symbol) {
+        this.area.append("error sintaxis en: " + symbol.value + " " + symbol.sym + " " + sym.terminalNames[symbol.sym] + "\n"
+                        +"No se construira el arbol de archivos!!" );
+    }
+
+    public void treeStructure(Node node) {
+        this.list.add(node);
+    }
+
+    public List getList() {
+        return this.list;
+    }
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     PROYECTO, CARPETA, ARCHIVO, NOMBRE, UBICACION, MENORQUE, MAYORQUE, EQUAL, ID, PATH, COMILLADOBLE, SLASH;
+
+/* No Terminales... */
+non terminal        inicio, etiquetaInicial, estructura, etiquetaFinal;
+
+/* Grammar */
+start with inicio;
+
+inicio ::= MENORQUE PROYECTO:p NOMBRE EQUAL ID:i MAYORQUE etiquetaInicial 
+           {: treeStructure(new Node(p, i)); :}
+           | error:e MAYORQUE etiquetaInicial {: syntax_error((Symbol) e); :}
+           ;
+etiquetaInicial ::= MENORQUE estructura
+                    | etiquetaFinal
+                    | error:e MENORQUE etiquetaInicial {: syntax_error((Symbol) e); :}
+                    ;
+estructura ::= ARCHIVO:a NOMBRE EQUAL ID:i UBICACION EQUAL COMILLADOBLE PATH:e COMILLADOBLE SLASH MAYORQUE etiquetaInicial
+               {: treeStructure(new Node(a, i, e)); :}
+               | CARPETA:c NOMBRE EQUAL ID:i MAYORQUE etiquetaInicial 
+               {: treeStructure(new Node(c, i)); :} 
+               ;
+etiquetaFinal ::= MENORQUE SLASH CARPETA MAYORQUE etiquetaFinal
+                  | MENORQUE SLASH PROYECTO MAYORQUE {: System.out.println("Proceso del parser finalizado con exito!!!"); :}
+                  | error:e MENORQUE {: syntax_error((Symbol) e); :}
+                  ;

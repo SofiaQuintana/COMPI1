@@ -84,5 +84,10 @@ public class Planet {
     public void setOwner(String owner) {
         this.owner = owner;
     }
+
+    @Override
+    public String toString() {
+        return "Planet{" + "name=" + name + ", spaceships=" + spaceships + ", production=" + production + ", deathRate=" + deathRate + ", neutral=" + neutral + ", owner=" + owner + '}';
+    }
     
 }

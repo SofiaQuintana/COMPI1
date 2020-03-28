@@ -5,17 +5,45 @@
  */
 package com.zofia.frontend;
 
+import com.zofia.dummyclasses.Player;
+import com.zofia.lexers.JSONLexer;
+import com.zofia.mapstructure.FileDriver;
+import com.zofia.mapstructure.PlayerDriver;
+import com.zofia.mapstructure.StructureDriver;
+import com.zofia.parsers.JSON.JSONParser;
+import java.awt.Color;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFileChooser;
+
 /**
  *
  * @author zofia
  */
 public class PrincipalFrame extends javax.swing.JFrame {
+    private boolean started;
+    private JSONParser parser;
+    private JSONLexer lexer;
+    private String path;
+    private String file;
+    private MessageStructure structure;
+    private FileDriver fileDriver;
+    private StructureDriver mapStructure;
+    private PlayerDriver playerDriver;
+    private List<Player> players;
 
     /**
      * Creates new form PrincipalFrame
      */
     public PrincipalFrame() {
         initComponents();
+        this.started = false;
+        componentsVisibility(started);
+        this.structure = new MessageStructure();
+        this.fileDriver = new FileDriver();
+        this.players = new ArrayList<>();
     }
 
     /**
@@ -27,83 +55,388 @@ public class PrincipalFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jMenuBar1 = new javax.swing.JMenuBar();
+        principalPanel = new javax.swing.JPanel();
+        toolbarPanel = new javax.swing.JPanel();
+        editButton = new javax.swing.JButton();
+        endButton = new javax.swing.JButton();
+        measureButton = new javax.swing.JButton();
+        saveButton = new javax.swing.JButton();
+        fleetButton = new javax.swing.JButton();
+        playerLabel = new javax.swing.JLabel();
+        standingLabel = new javax.swing.JLabel();
+        orderField = new javax.swing.JPasswordField();
+        endTurnButton = new javax.swing.JButton();
+        messageLabel = new javax.swing.JLabel();
+        turnLabel = new javax.swing.JLabel();
+        scroll = new javax.swing.JScrollPane();
+        messageArea = new javax.swing.JTextPane();
+        layeredPanel = new javax.swing.JLayeredPane();
+        centralPanel = new javax.swing.JPanel();
+        background = new javax.swing.JLabel();
+        menuBar = new javax.swing.JMenuBar();
         gameMenu = new javax.swing.JMenu();
         newGameItem = new javax.swing.JMenuItem();
+        loadItem = new javax.swing.JMenuItem();
+        saveItem = new javax.swing.JMenuItem();
+        separator = new javax.swing.JPopupMenu.Separator();
+        endItem = new javax.swing.JMenuItem();
+        secondSeparator = new javax.swing.JPopupMenu.Separator();
+        quitItem = new javax.swing.JMenuItem();
+        moveMenu = new javax.swing.JMenu();
+        endTurnItem = new javax.swing.JMenuItem();
         settingsMenu = new javax.swing.JMenu();
+        statusbarItem = new javax.swing.JMenuItem();
+        toolbarItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
+        abouItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        principalPanel.setBackground(new java.awt.Color(0, 0, 0));
+
+        toolbarPanel.setBackground(new java.awt.Color(255, 255, 255));
+
+        editButton.setBackground(new java.awt.Color(255, 255, 255));
+        editButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit.png"))); // NOI18N
+        editButton.setText("Edit Map");
+        editButton.setBorder(null);
+        editButton.setEnabled(false);
+        editButton.setOpaque(false);
+        editButton.setPreferredSize(new java.awt.Dimension(75, 40));
+
+        endButton.setBackground(new java.awt.Color(255, 255, 255));
+        endButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/close.png"))); // NOI18N
+        endButton.setText("End Game");
+        endButton.setBorder(null);
+        endButton.setEnabled(false);
+        endButton.setOpaque(false);
+        endButton.setPreferredSize(new java.awt.Dimension(75, 40));
+
+        measureButton.setBackground(new java.awt.Color(255, 255, 255));
+        measureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/measure.png"))); // NOI18N
+        measureButton.setText("Measure Distance");
+        measureButton.setBorder(null);
+        measureButton.setEnabled(false);
+        measureButton.setOpaque(false);
+        measureButton.setPreferredSize(new java.awt.Dimension(75, 40));
+
+        saveButton.setBackground(new java.awt.Color(255, 255, 255));
+        saveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/save.png"))); // NOI18N
+        saveButton.setText("Save");
+        saveButton.setBorder(null);
+        saveButton.setEnabled(false);
+        saveButton.setOpaque(false);
+        saveButton.setPreferredSize(new java.awt.Dimension(75, 40));
+
+        fleetButton.setBackground(new java.awt.Color(255, 255, 255));
+        fleetButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/rocket.png"))); // NOI18N
+        fleetButton.setText("Fleet Overview");
+        fleetButton.setBorder(null);
+        fleetButton.setEnabled(false);
+        fleetButton.setOpaque(false);
+        fleetButton.setPreferredSize(new java.awt.Dimension(75, 40));
+
+        javax.swing.GroupLayout toolbarPanelLayout = new javax.swing.GroupLayout(toolbarPanel);
+        toolbarPanel.setLayout(toolbarPanelLayout);
+        toolbarPanelLayout.setHorizontalGroup(
+            toolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(toolbarPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(editButton, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addComponent(endButton, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(128, 128, 128)
+                .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(140, 140, 140)
+                .addComponent(measureButton, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(120, 120, 120)
+                .addComponent(fleetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42))
+        );
+        toolbarPanelLayout.setVerticalGroup(
+            toolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, toolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(endButton, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(measureButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(editButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(fleetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+        );
+
+        playerLabel.setForeground(new java.awt.Color(255, 153, 255));
+        playerLabel.setText("Player:");
+
+        standingLabel.setForeground(new java.awt.Color(255, 255, 255));
+        standingLabel.setText("Standing order");
+
+        orderField.setBackground(new java.awt.Color(0, 0, 0));
+        orderField.setForeground(new java.awt.Color(255, 153, 255));
+        orderField.setBorder(null);
+        orderField.setMaximumSize(new java.awt.Dimension(1, 15));
+
+        endTurnButton.setBackground(new java.awt.Color(0, 0, 0));
+        endTurnButton.setForeground(new java.awt.Color(255, 153, 255));
+        endTurnButton.setText("End Turn");
+        endTurnButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 153, 255)));
+        endTurnButton.setOpaque(false);
+
+        messageLabel.setBackground(new java.awt.Color(255, 255, 255));
+        messageLabel.setText("Messages");
+        messageLabel.setOpaque(true);
+
+        turnLabel.setText("Turn #");
+        turnLabel.setOpaque(true);
+
+        scroll.setBackground(new java.awt.Color(0, 0, 0));
+        scroll.setBorder(null);
+
+        messageArea.setBackground(new java.awt.Color(0, 0, 0));
+        messageArea.setBorder(null);
+        messageArea.setForeground(new java.awt.Color(255, 153, 255));
+        scroll.setViewportView(messageArea);
+
+        centralPanel.setBackground(new java.awt.Color(255, 255, 255));
+        centralPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
+        centralPanel.setOpaque(false);
+
+        background.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        background.setIcon(new javax.swing.ImageIcon(getClass().getResource("/universe.jpg"))); // NOI18N
+
+        layeredPanel.setLayer(centralPanel, javax.swing.JLayeredPane.DRAG_LAYER);
+        layeredPanel.setLayer(background, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout layeredPanelLayout = new javax.swing.GroupLayout(layeredPanel);
+        layeredPanel.setLayout(layeredPanelLayout);
+        layeredPanelLayout.setHorizontalGroup(
+            layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(background, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layeredPanelLayout.createSequentialGroup()
+                    .addContainerGap(294, Short.MAX_VALUE)
+                    .addComponent(centralPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 550, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(306, Short.MAX_VALUE)))
+        );
+        layeredPanelLayout.setVerticalGroup(
+            layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(background, javax.swing.GroupLayout.PREFERRED_SIZE, 454, Short.MAX_VALUE)
+            .addGroup(layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layeredPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(centralPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addContainerGap()))
+        );
+
+        javax.swing.GroupLayout principalPanelLayout = new javax.swing.GroupLayout(principalPanel);
+        principalPanel.setLayout(principalPanelLayout);
+        principalPanelLayout.setHorizontalGroup(
+            principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(messageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(turnLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(toolbarPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(scroll)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, principalPanelLayout.createSequentialGroup()
+                .addComponent(playerLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(standingLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(orderField, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(endTurnButton, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6))
+            .addComponent(layeredPanel, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+        principalPanelLayout.setVerticalGroup(
+            principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, principalPanelLayout.createSequentialGroup()
+                .addComponent(toolbarPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addGroup(principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(endTurnButton)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(orderField, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(standingLabel)
+                        .addComponent(playerLabel)))
+                .addGap(0, 0, 0)
+                .addComponent(layeredPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(messageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scroll, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(turnLabel))
+        );
+
+        menuBar.setBackground(new java.awt.Color(102, 102, 102));
+        menuBar.setOpaque(false);
+        menuBar.setPreferredSize(new java.awt.Dimension(220, 25));
+
         gameMenu.setText("Game");
 
-        newGameItem.setText("New Game");
+        newGameItem.setText("New");
+        newGameItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newGameItemActionPerformed(evt);
+            }
+        });
         gameMenu.add(newGameItem);
 
-        jMenuBar1.add(gameMenu);
+        loadItem.setText("Load Game");
+        gameMenu.add(loadItem);
+
+        saveItem.setText("Save Game");
+        gameMenu.add(saveItem);
+        gameMenu.add(separator);
+
+        endItem.setText("End Game");
+        gameMenu.add(endItem);
+        gameMenu.add(secondSeparator);
+
+        quitItem.setText("Quit");
+        gameMenu.add(quitItem);
+
+        menuBar.add(gameMenu);
+
+        moveMenu.setText("Move");
+
+        endTurnItem.setText("End Turn");
+        moveMenu.add(endTurnItem);
+
+        menuBar.add(moveMenu);
 
         settingsMenu.setText("Settings");
-        jMenuBar1.add(settingsMenu);
+
+        statusbarItem.setText("Show Toolbar");
+        settingsMenu.add(statusbarItem);
+
+        toolbarItem.setText("Show Statusbar");
+        settingsMenu.add(toolbarItem);
+
+        menuBar.add(settingsMenu);
 
         helpMenu.setText("Help");
-        jMenuBar1.add(helpMenu);
 
-        setJMenuBar(jMenuBar1);
+        abouItem.setText("About Konquest");
+        helpMenu.add(abouItem);
+
+        menuBar.add(helpMenu);
+
+        setJMenuBar(menuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 705, Short.MAX_VALUE)
+            .addComponent(principalPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 505, Short.MAX_VALUE)
+            .addComponent(principalPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+    private void newGameItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameItemActionPerformed
+        // TODO add your handling code here:
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Open JSON file");
+        if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            this.path = chooser.getSelectedFile().getAbsolutePath();
+            try {
+                this.file = fileDriver.readInputFile(path);
+                this.lexer = new JSONLexer(new StringReader(file), this);
+                this.parser = new JSONParser(lexer, this);
+                this.parser.parse();
+                this.mapStructure = parser.getStructure();
+                this.started = true;
+                initGameDrivers();
+            } catch (IOException ex) {
+                structure.appendString(Color.RED, "Archivo no encontrado.\n", messageArea);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PrincipalFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PrincipalFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PrincipalFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PrincipalFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            components(started);
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PrincipalFrame().setVisible(true);
-            }
-        });
+    }//GEN-LAST:event_newGameItemActionPerformed
+    
+    public void initGameDrivers() {
+        this.playerDriver = new PlayerDriver(mapStructure);
+        this.players = playerDriver.getPlayers();
     }
-
+    
+    public void components(boolean started) {
+        enableButtons(started);
+        componentsVisibility(started);
+    }
+    
+    public void enableButtons(boolean enabled) {
+       editButton.setEnabled(enabled);
+       endButton.setEnabled(enabled);
+       measureButton.setEnabled(enabled);
+       saveButton.setEnabled(enabled);
+       fleetButton.setEnabled(enabled);
+   }
+    
+    public void componentsVisibility(boolean show) {
+        standingLabel.setVisible(show);
+        playerLabel.setVisible(show);
+        endTurnButton.setVisible(show);
+        turnLabel.setVisible(show);
+        centralPanel.setVisible(show);
+    }
+    
+    /*Imprime un mensaje informativo, al momento de que el parser detecta un error sintactico en el archivo JSON.
+     *Indica el token en el que se presento el error.  */
+    public void printSyntaxError(String value, String token) {
+        structure.appendString(Color.YELLOW, "Se presento un error en la estructura en: ", messageArea);
+        structure.appendString(Color.RED, value, messageArea);
+        structure.appendString(Color.YELLOW, ", se esperaba el token: ", messageArea);
+        structure.appendString(Color.RED, token + "\n", messageArea);
+    }
+    
+    public void printLexicalError(String value, int line, int column) {
+        structure.appendString(Color.WHITE, "Error Lexico en valor: ", messageArea);
+        structure.appendString(Color.RED, value, messageArea);
+        structure.appendString(Color.WHITE, " , Dado en linea: ", messageArea);
+        structure.appendString(Color.RED, String.valueOf(line), messageArea);
+        structure.appendString(Color.WHITE, " y en columna: ", messageArea);
+        structure.appendString(Color.RED, String.valueOf(column) + "\n", messageArea);
+    }
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem abouItem;
+    private javax.swing.JLabel background;
+    private javax.swing.JPanel centralPanel;
+    private javax.swing.JButton editButton;
+    private javax.swing.JButton endButton;
+    private javax.swing.JMenuItem endItem;
+    private javax.swing.JButton endTurnButton;
+    private javax.swing.JMenuItem endTurnItem;
+    private javax.swing.JButton fleetButton;
     private javax.swing.JMenu gameMenu;
     private javax.swing.JMenu helpMenu;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JLayeredPane layeredPanel;
+    private javax.swing.JMenuItem loadItem;
+    private javax.swing.JButton measureButton;
+    private javax.swing.JMenuBar menuBar;
+    private javax.swing.JTextPane messageArea;
+    private javax.swing.JLabel messageLabel;
+    private javax.swing.JMenu moveMenu;
     private javax.swing.JMenuItem newGameItem;
+    private javax.swing.JPasswordField orderField;
+    private javax.swing.JLabel playerLabel;
+    private javax.swing.JPanel principalPanel;
+    private javax.swing.JMenuItem quitItem;
+    private javax.swing.JButton saveButton;
+    private javax.swing.JMenuItem saveItem;
+    private javax.swing.JScrollPane scroll;
+    private javax.swing.JPopupMenu.Separator secondSeparator;
+    private javax.swing.JPopupMenu.Separator separator;
     private javax.swing.JMenu settingsMenu;
+    private javax.swing.JLabel standingLabel;
+    private javax.swing.JMenuItem statusbarItem;
+    private javax.swing.JMenuItem toolbarItem;
+    private javax.swing.JPanel toolbarPanel;
+    private javax.swing.JLabel turnLabel;
     // End of variables declaration//GEN-END:variables
 }

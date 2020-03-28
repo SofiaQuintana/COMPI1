@@ -8,7 +8,7 @@ package com.zofia.parsers.JSON;
 import java_cup.runtime.Symbol;
 import com.zofia.lexers.JSONLexer;
 import com.zofia.mapstructure.StructureDriver;
-import javax.swing.JTextArea;
+import com.zofia.frontend.PrincipalFrame;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -34,7 +34,7 @@ public class JSONParser extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\046\000\002\002\004\000\002\002\012\000\002\002" +
+    "\000\047\000\002\002\004\000\002\002\012\000\002\002" +
     "\005\000\002\003\012\000\002\004\016\000\002\005\012" +
     "\000\002\006\003\000\002\006\003\000\002\007\006\000" +
     "\002\010\006\000\002\011\014\000\002\013\006\000\002" +
@@ -43,9 +43,10 @@ public class JSONParser extends java_cup.runtime.lr_parser {
     "\000\002\016\023\000\002\017\004\000\002\017\004\000" +
     "\002\020\004\000\002\021\006\000\002\022\006\000\002" +
     "\023\006\000\002\024\004\000\002\025\004\000\002\025" +
-    "\003\000\002\033\002\000\002\026\014\000\002\027\004" +
-    "\000\002\030\004\000\002\030\010\000\002\031\003\000" +
-    "\002\031\003\000\002\031\003\000\002\032\003" });
+    "\003\000\002\033\002\000\002\026\014\000\002\034\002" +
+    "\000\002\027\005\000\002\030\004\000\002\030\010\000" +
+    "\002\031\003\000\002\031\003\000\002\031\003\000\002" +
+    "\032\003" });
 
   /** Access to production table. */
   public short[][] production_table() {return _production_table;}
@@ -53,22 +54,22 @@ public class JSONParser extends java_cup.runtime.lr_parser {
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\223\000\006\003\005\037\006\001\002\000\004\002" +
-    "\225\001\002\000\004\044\223\001\002\000\004\004\010" +
+    "\000\224\000\006\003\005\037\006\001\002\000\004\002" +
+    "\226\001\002\000\004\044\224\001\002\000\004\004\010" +
     "\001\002\000\012\011\035\015\037\016\034\017\044\001" +
     "\002\000\004\041\011\001\002\000\004\037\012\001\002" +
     "\000\004\005\013\001\002\000\004\041\014\001\002\000" +
-    "\004\050\015\001\002\000\004\042\016\001\002\000\004" +
+    "\004\047\015\001\002\000\004\042\016\001\002\000\004" +
     "\006\020\001\002\000\012\011\ufffe\015\ufffe\016\ufffe\017" +
     "\ufffe\001\002\000\004\041\021\001\002\000\004\037\022" +
     "\001\002\000\004\007\023\001\002\000\004\041\024\001" +
-    "\002\000\004\051\025\001\002\000\004\042\026\001\002" +
+    "\002\000\004\050\025\001\002\000\004\042\026\001\002" +
     "\000\004\010\027\001\002\000\004\041\030\001\002\000" +
-    "\004\051\031\001\002\000\004\040\032\001\002\000\004" +
+    "\004\050\031\001\002\000\004\040\032\001\002\000\004" +
     "\042\033\001\002\000\012\011\ufffd\015\ufffd\016\ufffd\017" +
-    "\ufffd\001\002\000\004\041\220\001\002\000\004\041\211" +
+    "\ufffd\001\002\000\004\041\221\001\002\000\004\041\212" +
     "\001\002\000\012\011\035\015\037\016\034\017\044\001" +
-    "\002\000\004\041\205\001\002\000\006\023\073\040\074" +
+    "\002\000\004\041\206\001\002\000\006\023\073\040\074" +
     "\001\002\000\006\023\ufff1\040\ufff1\001\002\000\012\011" +
     "\035\015\037\016\034\017\044\001\002\000\012\011\035" +
     "\015\037\016\034\017\044\001\002\000\004\041\045\001" +
@@ -79,57 +80,57 @@ public class JSONParser extends java_cup.runtime.lr_parser {
     "\004\021\ufff6\001\002\000\004\022\063\001\002\000\004" +
     "\041\060\001\002\000\006\012\053\013\054\001\002\000" +
     "\004\042\062\001\002\000\004\022\ufff5\001\002\000\004" +
-    "\041\064\001\002\000\004\051\065\001\002\000\004\040" +
+    "\041\064\001\002\000\004\050\065\001\002\000\004\040" +
     "\066\001\002\000\004\042\067\001\002\000\006\023\ufff7" +
     "\040\ufff7\001\002\000\006\023\ufff2\040\ufff2\001\002\000" +
     "\006\023\ufff3\040\ufff3\001\002\000\004\024\101\001\002" +
     "\000\004\041\076\001\002\000\004\042\075\001\002\000" +
-    "\004\024\uffef\001\002\000\004\051\077\001\002\000\006" +
+    "\004\024\uffef\001\002\000\004\050\077\001\002\000\006" +
     "\023\073\040\074\001\002\000\004\024\ufff0\001\002\000" +
-    "\004\041\202\001\002\000\004\030\104\001\002\000\004" +
+    "\004\041\203\001\002\000\004\030\104\001\002\000\004" +
     "\031\137\001\002\000\004\041\105\001\002\000\004\043" +
     "\106\001\002\000\004\037\111\001\002\000\004\031\uffe9" +
     "\001\002\000\006\042\132\044\133\001\002\000\004\025" +
-    "\112\001\002\000\004\041\113\001\002\000\004\046\114" +
+    "\112\001\002\000\004\041\113\001\002\000\004\045\114" +
     "\001\002\000\004\042\115\001\002\000\004\026\116\001" +
-    "\002\000\004\041\117\001\002\000\004\051\120\001\002" +
+    "\002\000\004\041\117\001\002\000\004\050\120\001\002" +
     "\000\004\042\121\001\002\000\004\022\122\001\002\000" +
-    "\004\041\123\001\002\000\004\051\124\001\002\000\004" +
+    "\004\041\123\001\002\000\004\050\124\001\002\000\004" +
     "\042\125\001\002\000\004\027\126\001\002\000\004\041" +
-    "\127\001\002\000\004\052\130\001\002\000\004\040\131" +
+    "\127\001\002\000\004\051\130\001\002\000\004\040\131" +
     "\001\002\000\006\042\uffee\044\uffee\001\002\000\004\037" +
     "\111\001\002\000\004\042\135\001\002\000\006\030\uffeb" +
     "\031\uffeb\001\002\000\006\030\uffec\031\uffec\001\002\000" +
     "\006\030\uffed\031\uffed\001\002\000\004\041\143\001\002" +
     "\000\004\040\142\001\002\000\004\002\000\001\002\000" +
-    "\004\002\uffdc\001\002\000\004\043\144\001\002\000\004" +
+    "\004\002\uffdb\001\002\000\004\043\144\001\002\000\004" +
     "\037\147\001\002\000\004\040\uffe8\001\002\000\006\042" +
-    "\177\044\200\001\002\000\004\025\150\001\002\000\004" +
-    "\041\151\001\002\000\004\047\152\001\002\000\004\042" +
+    "\200\044\201\001\002\000\004\025\150\001\002\000\004" +
+    "\041\151\001\002\000\004\046\152\001\002\000\004\042" +
     "\uffe4\001\002\000\004\042\154\001\002\000\004\032\155" +
     "\001\002\000\004\041\156\001\002\000\004\043\157\001" +
-    "\002\000\004\046\161\001\002\000\006\042\uffe3\044\uffe3" +
-    "\001\002\000\006\040\164\042\162\001\002\000\004\046" +
-    "\161\001\002\000\006\042\uffe2\044\uffe2\001\002\000\004" +
-    "\042\165\001\002\000\004\033\166\001\002\000\004\041" +
-    "\167\001\002\000\010\034\170\035\172\036\171\001\002" +
-    "\000\004\040\uffdf\001\002\000\004\040\uffdd\001\002\000" +
-    "\004\040\uffde\001\002\000\004\040\174\001\002\000\006" +
-    "\042\uffe0\044\uffe0\001\002\000\006\042\uffe1\044\uffe1\001" +
-    "\002\000\004\040\uffe7\001\002\000\004\037\147\001\002" +
-    "\000\004\040\uffe5\001\002\000\004\040\uffe6\001\002\000" +
-    "\004\043\203\001\002\000\004\037\111\001\002\000\004" +
-    "\030\uffea\001\002\000\006\012\053\013\054\001\002\000" +
-    "\004\042\207\001\002\000\012\011\ufff9\015\ufff9\016\ufff9" +
-    "\017\ufff9\001\002\000\006\023\ufff4\040\ufff4\001\002\000" +
-    "\006\012\053\013\054\001\002\000\004\042\213\001\002" +
-    "\000\004\014\214\001\002\000\004\041\215\001\002\000" +
-    "\004\051\216\001\002\000\004\042\217\001\002\000\012" +
-    "\011\ufffc\015\ufffc\016\ufffc\017\ufffc\001\002\000\006\012" +
-    "\053\013\054\001\002\000\004\042\222\001\002\000\012" +
-    "\011\ufff8\015\ufff8\016\ufff8\017\ufff8\001\002\000\004\040" +
-    "\224\001\002\000\004\002\uffff\001\002\000\004\002\001" +
-    "\001\002" });
+    "\002\000\004\045\161\001\002\000\006\042\uffe3\044\uffe3" +
+    "\001\002\000\006\042\uffe2\044\uffe2\001\002\000\006\042" +
+    "\163\044\164\001\002\000\004\045\161\001\002\000\004" +
+    "\042\166\001\002\000\006\042\uffe1\044\uffe1\001\002\000" +
+    "\004\033\167\001\002\000\004\041\170\001\002\000\010" +
+    "\034\171\035\173\036\172\001\002\000\004\040\uffde\001" +
+    "\002\000\004\040\uffdc\001\002\000\004\040\uffdd\001\002" +
+    "\000\004\040\175\001\002\000\006\042\uffdf\044\uffdf\001" +
+    "\002\000\006\042\uffe0\044\uffe0\001\002\000\004\040\uffe7" +
+    "\001\002\000\004\037\147\001\002\000\004\040\uffe5\001" +
+    "\002\000\004\040\uffe6\001\002\000\004\043\204\001\002" +
+    "\000\004\037\111\001\002\000\004\030\uffea\001\002\000" +
+    "\006\012\053\013\054\001\002\000\004\042\210\001\002" +
+    "\000\012\011\ufff9\015\ufff9\016\ufff9\017\ufff9\001\002\000" +
+    "\006\023\ufff4\040\ufff4\001\002\000\006\012\053\013\054" +
+    "\001\002\000\004\042\214\001\002\000\004\014\215\001" +
+    "\002\000\004\041\216\001\002\000\004\050\217\001\002" +
+    "\000\004\042\220\001\002\000\012\011\ufffc\015\ufffc\016" +
+    "\ufffc\017\ufffc\001\002\000\006\012\053\013\054\001\002" +
+    "\000\004\042\223\001\002\000\012\011\ufff8\015\ufff8\016" +
+    "\ufff8\017\ufff8\001\002\000\004\040\225\001\002\000\004" +
+    "\002\uffff\001\002\000\004\002\001\001\002" });
 
   /** Access to parse-action table. */
   public short[][] action_table() {return _action_table;}
@@ -137,7 +138,7 @@ public class JSONParser extends java_cup.runtime.lr_parser {
   /** <code>reduce_goto</code> table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\223\000\004\002\003\001\001\000\002\001\001\000" +
+    "\000\224\000\004\002\003\001\001\000\002\001\001\000" +
     "\002\001\001\000\004\003\006\001\001\000\014\005\035" +
     "\007\041\010\042\011\040\012\037\001\001\000\002\001" +
     "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
@@ -147,7 +148,7 @@ public class JSONParser extends java_cup.runtime.lr_parser {
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
     "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
     "\001\000\002\001\001\000\002\001\001\000\014\005\035" +
-    "\007\041\010\042\011\040\012\207\001\001\000\002\001" +
+    "\007\041\010\042\011\040\012\210\001\001\000\002\001" +
     "\001\000\004\014\071\001\001\000\002\001\001\000\014" +
     "\005\035\007\041\010\042\011\040\012\070\001\001\000" +
     "\014\005\035\007\041\010\042\011\040\012\067\001\001" +
@@ -174,23 +175,24 @@ public class JSONParser extends java_cup.runtime.lr_parser {
     "\001\001\000\002\001\001\000\004\032\140\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\006" +
     "\024\144\026\145\001\001\000\002\001\001\000\004\025" +
-    "\175\001\001\000\002\001\001\000\002\001\001\000\002" +
+    "\176\001\001\000\002\001\001\000\002\001\001\000\002" +
     "\001\001\000\004\033\152\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\004" +
-    "\027\157\001\001\000\002\001\001\000\004\030\162\001" +
-    "\001\000\004\027\174\001\001\000\002\001\001\000\002" +
-    "\001\001\000\002\001\001\000\002\001\001\000\004\031" +
-    "\172\001\001\000\002\001\001\000\002\001\001\000\002" +
+    "\027\157\001\001\000\002\001\001\000\004\034\161\001" +
+    "\001\000\004\030\164\001\001\000\004\027\175\001\001" +
+    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
+    "\002\001\001\000\004\031\173\001\001\000\002\001\001" +
+    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\002\001\001\000\006" +
+    "\024\201\026\145\001\001\000\002\001\001\000\002\001" +
+    "\001\000\002\001\001\000\006\016\107\020\204\001\001" +
+    "\000\002\001\001\000\004\006\206\001\001\000\002\001" +
+    "\001\000\002\001\001\000\002\001\001\000\004\006\212" +
     "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
-    "\001\000\002\001\001\000\006\024\200\026\145\001\001" +
-    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
-    "\006\016\107\020\203\001\001\000\002\001\001\000\004" +
-    "\006\205\001\001\000\002\001\001\000\002\001\001\000" +
-    "\002\001\001\000\004\006\211\001\001\000\002\001\001" +
-    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
-    "\002\001\001\000\002\001\001\000\004\006\220\001\001" +
-    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
-    "\002\001\001\000\002\001\001" });
+    "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
+    "\000\004\006\221\001\001\000\002\001\001\000\002\001" +
+    "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
+    "" });
 
   /** Access to <code>reduce_goto</code> table. */
   public short[][] reduce_table() {return _reduce_table;}
@@ -229,18 +231,21 @@ public class JSONParser extends java_cup.runtime.lr_parser {
 
 
 
-    private JTextArea area;
+    private PrincipalFrame principalFrame;
     private StructureDriver structure = new StructureDriver();
 
-    public JSONParser(JSONLexer lexer, JTextArea area) {
+    public JSONParser(JSONLexer lexer, PrincipalFrame principalFrame) {
         super(lexer);
-        this.area = area;
+       this.principalFrame = principalFrame;
     }
 
     public void syntax_error(Symbol symbol) {
-        this.area.append("error de sintaxis en: " + symbol.value + " " + symbol.sym + " " + sym.terminalNames[symbol.sym] + "\n");
+        this.principalFrame.printSyntaxError(String.valueOf(symbol.value), sym.terminalNames[symbol.sym]);
     }
-    
+
+    public StructureDriver getStructure() {
+        return structure;
+    }
 
 
 /** Cup generated class to encapsulate user supplied action code.*/
@@ -320,11 +325,11 @@ class CUP$JSONParser$actions {
               Object RESULT =null;
 		int ileft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-6)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-6)).right;
-		Integer i = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-6)).value;
+		String i = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-6)).value;
 		int eleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).left;
 		int eright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).right;
-		Integer e = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).value;
-		 structure.setMapLimits(i, e); 
+		String e = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).value;
+		 structure.setMapLimits(Integer.valueOf(i), Integer.valueOf(e)); 
               CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("sizeStructure",2, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-11)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
             }
           return CUP$JSONParser$result;
@@ -338,9 +343,9 @@ class CUP$JSONParser$actions {
 		String a = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-7)).value;
 		int ileft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).right;
-		Integer i = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
+		String i = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
 		 structure.setOptionalAttributes(a, 0); 
-                 structure.setNeutralPlanets(i); 
+                 structure.setNeutralPlanets(Integer.valueOf(i)); 
               CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("randomMap",3, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-7)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
             }
           return CUP$JSONParser$result;
@@ -396,8 +401,8 @@ class CUP$JSONParser$actions {
 		String p = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-4)).value;
 		int ileft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).right;
-		Integer i = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).value;
-		 structure.setNeutrals(p, i); 
+		String i = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).value;
+		 structure.setNeutrals(p, Integer.valueOf(i)); 
               CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("neutralStructure",7, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-9)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
             }
           return CUP$JSONParser$result;
@@ -471,8 +476,8 @@ class CUP$JSONParser$actions {
 		String f = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-3)).value;
 		int ileft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).right;
-		Integer i = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
-		 structure.setOptionalAttributes(f, i); 
+		String i = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
+		 structure.setOptionalAttributes(f, Integer.valueOf(i)); 
               CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("endingAttribute",10, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-3)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
             }
           return CUP$JSONParser$result;
@@ -495,14 +500,14 @@ class CUP$JSONParser$actions {
 		String n = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-13)).value;
 		int ileft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-9)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-9)).right;
-		Integer i = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-9)).value;
+		String i = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-9)).value;
 		int eleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-5)).left;
 		int eright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-5)).right;
-		Integer e = (Integer)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-5)).value;
+		String e = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-5)).value;
 		int pleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).left;
 		int pright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).right;
-		Double p = (Double)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
-		 structure.setPlanetAttributes(n, i, e, p); 
+		String p = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
+		 structure.setPlanetAttributes(n, Integer.valueOf(i), Integer.valueOf(e), Double.valueOf(p)); 
               CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("planetAttributes",12, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-16)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
             }
           return CUP$JSONParser$result;
@@ -615,19 +620,33 @@ class CUP$JSONParser$actions {
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 31: // ownedPlanets ::= NAME symbol 
+          case 31: // NT$1 ::= 
             {
               Object RESULT =null;
-		int nleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).left;
-		int nright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).right;
-		String n = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
-		 structure.setOwnedPlanets(n); 
-              CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("ownedPlanets",21, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
+		int nleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()).left;
+		int nright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()).right;
+		String n = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.peek()).value;
+ structure.setOwnedPlanets(n); 
+              CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("NT$1",26, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
             }
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 32: // symbol ::= COMMA ownedPlanets 
+          case 32: // ownedPlanets ::= NAME NT$1 symbol 
+            {
+              Object RESULT =null;
+              // propagate RESULT from NT$1
+                RESULT = (Object) ((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-1)).value;
+		int nleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).left;
+		int nright = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).right;
+		String n = (String)((java_cup.runtime.Symbol) CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)).value;
+
+              CUP$JSONParser$result = parser.getSymbolFactory().newSymbol("ownedPlanets",21, ((java_cup.runtime.Symbol)CUP$JSONParser$stack.elementAt(CUP$JSONParser$top-2)), ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()), RESULT);
+            }
+          return CUP$JSONParser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 33: // symbol ::= COMMA ownedPlanets 
             {
               Object RESULT =null;
 
@@ -636,7 +655,7 @@ class CUP$JSONParser$actions {
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 33: // symbol ::= CURLYBRACESC COMMA tipo COLON type CURLYBRACESC 
+          case 34: // symbol ::= BRACKETC COMMA tipo COLON type CURLYBRACESC 
             {
               Object RESULT =null;
 
@@ -645,7 +664,7 @@ class CUP$JSONParser$actions {
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 34: // type ::= HUMANO 
+          case 35: // type ::= HUMANO 
             {
               Object RESULT =null;
 		int hleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()).left;
@@ -657,7 +676,7 @@ class CUP$JSONParser$actions {
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 35: // type ::= FACIL 
+          case 36: // type ::= FACIL 
             {
               Object RESULT =null;
 		int fleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()).left;
@@ -669,7 +688,7 @@ class CUP$JSONParser$actions {
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 36: // type ::= DIFICIL 
+          case 37: // type ::= DIFICIL 
             {
               Object RESULT =null;
 		int dleft = ((java_cup.runtime.Symbol)CUP$JSONParser$stack.peek()).left;
@@ -681,7 +700,7 @@ class CUP$JSONParser$actions {
           return CUP$JSONParser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 37: // ending ::= CURLYBRACESC 
+          case 38: // ending ::= CURLYBRACESC 
             {
               Object RESULT =null;
 

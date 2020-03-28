@@ -17,7 +17,7 @@ public class sym {
   public static final int produccion = 16;
   public static final int FACIL = 27;
   public static final int PLANETAS = 18;
-  public static final int INTEGER = 39;
+  public static final int INTEGER = 38;
   public static final int alAzar = 7;
   public static final int finalizacion = 17;
   public static final int NEUTRALES = 13;
@@ -27,15 +27,14 @@ public class sym {
   public static final int MAPA = 2;
   public static final int COMMA = 32;
   public static final int planetasNeutrales = 10;
-  public static final int ID = 38;
-  public static final int PLAYER = 37;
+  public static final int ID = 37;
+  public static final int PLAYER = 36;
   public static final int EOF = 0;
   public static final int TRUE = 8;
   public static final int nombre = 19;
-  public static final int COMILLA = 35;
   public static final int error = 1;
   public static final int PLANETAS_NEUTRALES = 22;
-  public static final int NAME = 36;
+  public static final int NAME = 35;
   public static final int mapaCiego = 11;
   public static final int HUMANO = 26;
   public static final int id = 3;
@@ -46,7 +45,7 @@ public class sym {
   public static final int columnas = 6;
   public static final int naves = 20;
   public static final int CURLYBRACESO = 29;
-  public static final int PERCENTAGE = 40;
+  public static final int PERCENTAGE = 39;
   public static final int FALSE = 9;
   public static final int porcentajeMuertes = 21;
   public static final String[] terminalNames = new String[] {
@@ -85,7 +84,6 @@ public class sym {
   "COMMA",
   "BRACKETO",
   "BRACKETC",
-  "COMILLA",
   "NAME",
   "PLAYER",
   "ID",

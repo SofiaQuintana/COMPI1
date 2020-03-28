@@ -1,0 +1,87 @@
+package com.zofia.lexer;
+import java_cup.runtime.*;
+import com.zofia.parsers.queries.sym;
+import com.zofia.frontend.PrincipalFrame;
+
+%%// area break
+
+%public
+%class QueryLexer
+%cup
+%cupdebug
+%line
+%column
+
+/* Identifiers (macros & lexical rules)*/
+Letter = [a-zA-Z]
+Number = [0-9]
+LineTerminator = \r|\n|\r\n 
+WhiteSpace = {LineTerminator} | [ \t\f\b]
+Identifier = ({Letter}|{Number})({Letter}|{Number})*
+Path = ({Identifier})((".")({Identifier}))*
+Column = (({Identifier})((",")({Identifier}))*) | "*"
+Assignation = ("\"")({Identifier} | " ")("\"")
+
+%{
+    private PrincipalFrame frame;
+
+    private Symbol symbol(int type) {
+        return new Symbol(type, yyline+1, yycolumn+1);
+    }
+
+    private Symbol symbol(int type, Object value) {
+        return new Symbol(type, yyline+1, yycolumn+1, value);
+    }
+
+    private void error(String value, int line, int column) {
+        frame.printLexicalError(value, line+1, column+1);
+    }
+    
+    public QueryLexer(java.io.Reader in, PrincipalFrame frame) {
+        this.zzReader = in;
+        this.frame = frame;
+    }
+
+    private void printToken(String token){
+        System.out.println(token);
+    }
+%}
+
+%%//Area break
+
+/* Rules Area */
+<YYINITIAL> {
+    /* Keywords */
+    "SELECCIONAR"              {printToken("SELECCIONAR"); return symbol(sym.SELECCIONAR, "SELECCIONAR");}
+    "FILTRAR"               {printToken("FILTRAR"); return symbol(sym.FILTRAR, "FILTRAR");}
+    "INSERTAR"               {printToken("INSERTAR"); return symbol(sym.INSERTAR, "INSERTAR");}
+    "ACTUALIZAR"                {printToken("ACTUALIZAR"); return symbol(sym.ACTUALIZAR, "ACTUALIZAR");}
+    "ASIGNAR"             {printToken("ASIGNAR"); return symbol(sym.ASIGNAR, "ASIGNAR");}
+    "ELIMINAR"             {printToken("ELIMINAR"); return symbol(sym.ELIMINAR, "ELIMINAR");}
+    "VALORES"             {printToken("VALORES"); return symbol(sym.VALORES, "VALORES");}
+    "EN"             {printToken("EN"); return symbol(sym.EN, "EN");}
+    "AND"             {printToken("AND"); return symbol(sym.AND, "AND");}
+    "OR"             {printToken("OR"); return symbol(sym.OR, "OR");}
+
+    /* Operators */
+    "<"                     {printToken("<"); return symbol(sym.MENORQUE, "<");}
+    ">"                     {printToken(">"); return symbol(sym.MAYORQUE, ">");}
+    "<="                     {printToken("<="); return symbol(sym.MENORIGUAL, "<=");}
+    ">="                     {printToken(">="); return symbol(sym.MAYORIGUAL, ">=");}
+    "<>"                     {printToken("<>"); return symbol(sym.DIFERENTEDE, "<>");}
+    "="                     {printToken("="); return symbol(sym.EQUAL, "=");}
+    /* Signs */
+    ";"                    {printToken(";"); return symbol(sym.SEMICOLON, ";");}
+    "("                    {printToken("("); return symbol(sym.OPARENTESIS, "(");}
+    ")"                    {printToken(")"); return symbol(sym.CPARENTESIS, ")");}
+    ","                    {printToken(","); return symbol(sym.COMMA, ",");}
+    /* Others */
+    {Number}                  {printToken(yytext()); return symbol(sym.NUMBER, yytext());}
+    {Column}                  {printToken(yytext()); return symbol(sym.COLUMN, yytext());}
+    {Path}                  {printToken(yytext()); return symbol(sym.PATH, yytext());} 
+    {Assignation}                  {printToken(yytext()); return symbol(sym.ASSIGNATION, yytext());} 
+    {WhiteSpace}            {/*do nothing*/}
+    .                       {printToken("ERROR"); error(yytext(), yyline, yycolumn); }
+}
+
+    <<EOF>>                 { return symbol(EOF); }

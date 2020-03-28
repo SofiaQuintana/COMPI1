@@ -85,28 +85,43 @@ public class StructureDriver {
     }
     
     public void setPlanetAttributes(String name, int spaceships, int production, double deathRate) {
+        System.out.println("Entre a atributos de planeta: " + name + " " + spaceships + " " + production + " " + deathRate);
         this.planet = new Planet(name, spaceships, production, deathRate, true);
+        System.out.println(planet);
         this.planets.add(planet);
     }
     
     public void setOwnedPlanets(String name) {
+        System.out.println("array size: "+planets.size());
+        System.out.println("Entre a planetas con propietario, en el planeta: " + name);
         for(Planet temporalPlanet : this.planets) {
             if(temporalPlanet.getName().equals(name)) {
                 this.ownedPlanets.add(temporalPlanet);
-                this.planets.remove(temporalPlanet);
             }
         }
+        System.out.println("Sali de planetas con propietario.");
     }
   
     public void setPlayerAttributes(String type) {
+        System.out.println("Entre a atributos de jugador: Nombre " + playerName + ", tipo: " + type + " y size array: " + ownedPlanets.size());
         this.ownedPlanets.forEach((temporalPlanet) -> {
             temporalPlanet.setOwner(playerName);
         });
         this.player = new Player(playerName, ownedPlanets, type);
         this.players.add(player);
+        this.ownedPlanets.clear();
     }
 
     public void setPlayerName(String playerName) {
+        System.out.println("Entre a nombre de jugador: " + playerName);
         this.playerName = playerName;
+    }
+
+    public List<Planet> getPlanets() {
+        return planets;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
     }
 }
