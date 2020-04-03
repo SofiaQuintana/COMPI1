@@ -5,18 +5,27 @@
  */
 package com.zofia.frontend;
 
+import com.zofia.dummyclasses.Box;
+import com.zofia.dummyclasses.Planet;
 import com.zofia.dummyclasses.Player;
-import com.zofia.lexers.JSONLexer;
+import com.zofia.lexers.XMLlexer;
 import com.zofia.mapstructure.FileDriver;
-import com.zofia.mapstructure.PlayerDriver;
+import com.zofia.mapstructure.GameDriver;
+import com.zofia.mapstructure.LoadStructure;
+import com.zofia.mapstructure.MapDriver;
 import com.zofia.mapstructure.StructureDriver;
-import com.zofia.parsers.JSON.JSONParser;
+import com.zofia.parsers.SAVING.XMLParser;
 import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -24,16 +33,28 @@ import javax.swing.JFileChooser;
  */
 public class PrincipalFrame extends javax.swing.JFrame {
     private boolean started;
-    private JSONParser parser;
-    private JSONLexer lexer;
-    private String path;
-    private String file;
     private MessageStructure structure;
     private FileDriver fileDriver;
     private StructureDriver mapStructure;
-    private PlayerDriver playerDriver;
     private List<Player> players;
-
+    private List<Planet> planets;
+    private MapDriver mapDriver;
+    private boolean showStadistics;
+    private boolean showSpaceships;
+    private boolean accumulative;
+    private GameDriver gameDriver;
+    private int counter;
+    private Player playerInTurn;
+    private Box[] grid;
+    private boolean blindMap;
+    private MapEditor mapEditor;
+    private int measurementCounter;
+    private boolean measurement;
+    private String path;
+    private String file;
+    private XMLlexer lexer;
+    private XMLParser parser;
+    private LoadStructure loading;
     /**
      * Creates new form PrincipalFrame
      */
@@ -44,6 +65,8 @@ public class PrincipalFrame extends javax.swing.JFrame {
         this.structure = new MessageStructure();
         this.fileDriver = new FileDriver();
         this.players = new ArrayList<>();
+        this.planets = new ArrayList<>();
+        this.mapEditor = new MapEditor(this);
     }
 
     /**
@@ -57,7 +80,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         principalPanel = new javax.swing.JPanel();
         toolbarPanel = new javax.swing.JPanel();
-        editButton = new javax.swing.JButton();
+        createButton = new javax.swing.JButton();
         endButton = new javax.swing.JButton();
         measureButton = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
@@ -85,8 +108,8 @@ public class PrincipalFrame extends javax.swing.JFrame {
         moveMenu = new javax.swing.JMenu();
         endTurnItem = new javax.swing.JMenuItem();
         settingsMenu = new javax.swing.JMenu();
-        statusbarItem = new javax.swing.JMenuItem();
-        toolbarItem = new javax.swing.JMenuItem();
+        showToolbar = new javax.swing.JCheckBoxMenuItem();
+        showStatusbar = new javax.swing.JCheckBoxMenuItem();
         helpMenu = new javax.swing.JMenu();
         abouItem = new javax.swing.JMenuItem();
 
@@ -96,13 +119,18 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         toolbarPanel.setBackground(new java.awt.Color(255, 255, 255));
 
-        editButton.setBackground(new java.awt.Color(255, 255, 255));
-        editButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit.png"))); // NOI18N
-        editButton.setText("Edit Map");
-        editButton.setBorder(null);
-        editButton.setEnabled(false);
-        editButton.setOpaque(false);
-        editButton.setPreferredSize(new java.awt.Dimension(75, 40));
+        createButton.setBackground(new java.awt.Color(255, 255, 255));
+        createButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit.png"))); // NOI18N
+        createButton.setText("Create Map");
+        createButton.setBorder(null);
+        createButton.setEnabled(false);
+        createButton.setOpaque(false);
+        createButton.setPreferredSize(new java.awt.Dimension(75, 40));
+        createButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createButtonActionPerformed(evt);
+            }
+        });
 
         endButton.setBackground(new java.awt.Color(255, 255, 255));
         endButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/close.png"))); // NOI18N
@@ -119,6 +147,11 @@ public class PrincipalFrame extends javax.swing.JFrame {
         measureButton.setEnabled(false);
         measureButton.setOpaque(false);
         measureButton.setPreferredSize(new java.awt.Dimension(75, 40));
+        measureButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                measureButtonActionPerformed(evt);
+            }
+        });
 
         saveButton.setBackground(new java.awt.Color(255, 255, 255));
         saveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/save.png"))); // NOI18N
@@ -127,6 +160,11 @@ public class PrincipalFrame extends javax.swing.JFrame {
         saveButton.setEnabled(false);
         saveButton.setOpaque(false);
         saveButton.setPreferredSize(new java.awt.Dimension(75, 40));
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveButtonActionPerformed(evt);
+            }
+        });
 
         fleetButton.setBackground(new java.awt.Color(255, 255, 255));
         fleetButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/rocket.png"))); // NOI18N
@@ -142,8 +180,8 @@ public class PrincipalFrame extends javax.swing.JFrame {
             toolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(toolbarPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(editButton, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addComponent(createButton, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(endButton, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(128, 128, 128)
                 .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -159,7 +197,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
                 .addComponent(endButton, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
                 .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addComponent(measureButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addComponent(editButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(createButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addComponent(fleetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
         );
 
@@ -171,14 +209,24 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         orderField.setBackground(new java.awt.Color(0, 0, 0));
         orderField.setForeground(new java.awt.Color(255, 153, 255));
-        orderField.setBorder(null);
+        orderField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 153, 255)));
         orderField.setMaximumSize(new java.awt.Dimension(1, 15));
+        orderField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                orderFieldKeyPressed(evt);
+            }
+        });
 
         endTurnButton.setBackground(new java.awt.Color(0, 0, 0));
         endTurnButton.setForeground(new java.awt.Color(255, 153, 255));
         endTurnButton.setText("End Turn");
         endTurnButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 153, 255)));
         endTurnButton.setOpaque(false);
+        endTurnButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                endTurnButtonMouseClicked(evt);
+            }
+        });
 
         messageLabel.setBackground(new java.awt.Color(255, 255, 255));
         messageLabel.setText("Messages");
@@ -196,7 +244,6 @@ public class PrincipalFrame extends javax.swing.JFrame {
         scroll.setViewportView(messageArea);
 
         centralPanel.setBackground(new java.awt.Color(255, 255, 255));
-        centralPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         centralPanel.setOpaque(false);
 
         background.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -209,16 +256,18 @@ public class PrincipalFrame extends javax.swing.JFrame {
         layeredPanel.setLayout(layeredPanelLayout);
         layeredPanelLayout.setHorizontalGroup(
             layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(background, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(background, javax.swing.GroupLayout.PREFERRED_SIZE, 1150, Short.MAX_VALUE)
             .addGroup(layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layeredPanelLayout.createSequentialGroup()
                     .addContainerGap(294, Short.MAX_VALUE)
-                    .addComponent(centralPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 550, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(centralPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(306, Short.MAX_VALUE)))
         );
         layeredPanelLayout.setVerticalGroup(
             layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(background, javax.swing.GroupLayout.PREFERRED_SIZE, 454, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layeredPanelLayout.createSequentialGroup()
+                .addGap(5, 5, 5)
+                .addComponent(background, javax.swing.GroupLayout.PREFERRED_SIZE, 449, Short.MAX_VALUE))
             .addGroup(layeredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layeredPanelLayout.createSequentialGroup()
                     .addContainerGap()
@@ -238,9 +287,9 @@ public class PrincipalFrame extends javax.swing.JFrame {
                 .addComponent(playerLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(standingLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(orderField, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(orderField, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
                 .addComponent(endTurnButton, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(6, 6, 6))
             .addComponent(layeredPanel, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -251,9 +300,10 @@ public class PrincipalFrame extends javax.swing.JFrame {
                 .addComponent(toolbarPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(4, 4, 4)
                 .addGroup(principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(endTurnButton)
+                    .addGroup(principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(endTurnButton)
+                        .addComponent(orderField, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, principalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(orderField, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(standingLabel)
                         .addComponent(playerLabel)))
                 .addGap(0, 0, 0)
@@ -281,6 +331,11 @@ public class PrincipalFrame extends javax.swing.JFrame {
         gameMenu.add(newGameItem);
 
         loadItem.setText("Load Game");
+        loadItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadItemActionPerformed(evt);
+            }
+        });
         gameMenu.add(loadItem);
 
         saveItem.setText("Save Game");
@@ -305,11 +360,23 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
         settingsMenu.setText("Settings");
 
-        statusbarItem.setText("Show Toolbar");
-        settingsMenu.add(statusbarItem);
+        showToolbar.setSelected(true);
+        showToolbar.setText("Show Toolbar");
+        showToolbar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showToolbarActionPerformed(evt);
+            }
+        });
+        settingsMenu.add(showToolbar);
 
-        toolbarItem.setText("Show Statusbar");
-        settingsMenu.add(toolbarItem);
+        showStatusbar.setSelected(true);
+        showStatusbar.setText("Show Statusbar");
+        showStatusbar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showStatusbarActionPerformed(evt);
+            }
+        });
+        settingsMenu.add(showStatusbar);
 
         menuBar.add(settingsMenu);
 
@@ -338,30 +405,322 @@ public class PrincipalFrame extends javax.swing.JFrame {
 
     private void newGameItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameItemActionPerformed
         // TODO add your handling code here:
+        this.mapEditor.setVisible(true);
+        this.mapStructure = mapEditor.getMapStructure();
+        
+        this.measurement = false;
+        this.started = true;
+        this.showSpaceships = mapStructure.getNeutral().isShowSpaceships();
+        this.showStadistics = mapStructure.getNeutral().isShowstadistics();
+        this.accumulative = mapStructure.getMap().isAccumulate();
+        this.blindMap = mapStructure.getMap().isBlindMap();
+        this.players = mapStructure.getPlayers();
+        this.path = mapEditor.getPath();
+        startGame();
+            
+        components(started);
+    }//GEN-LAST:event_newGameItemActionPerformed
+
+    private void endTurnButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_endTurnButtonMouseClicked
+        // TODO add your handling code here:
+        changeTurn();
+    }//GEN-LAST:event_endTurnButtonMouseClicked
+
+    private void orderFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderFieldKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            int spaceships;
+            String temporal = "";
+            char[] chars = orderField.getPassword();
+            for (int i = 0; i < chars.length; i++) {
+                temporal += chars[i];
+            }
+            try {
+                spaceships = Integer.valueOf(temporal);
+                gameDriver.verifySpaceshipInput(spaceships);
+                gameDriver.turnDriver(spaceships, showStadistics, showSpaceships, blindMap, 
+                        playerInTurn.getName(), mapStructure.getMap().getRows(), mapStructure.getMap().getColumns());
+                enableGrid();
+            } catch (NumberFormatException e) {
+                structure.appendError(Color.RED, "Solo se puede ingresar cantidad entera de naves a enviar.", gameDriver.getTurnCounter(), messageArea);
+            } catch (Exception ex) {
+                structure.appendError(Color.RED, ex.getMessage(), gameDriver.getTurnCounter(), messageArea);
+            }
+            orderField.setText("");
+        }
+    }//GEN-LAST:event_orderFieldKeyPressed
+
+    private void showToolbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showToolbarActionPerformed
+        // TODO add your handling code here:
+        if(showToolbar.isSelected()) {
+            this.toolbarPanel.setVisible(true);
+        } else {
+            this.toolbarPanel.setVisible(false);
+        }
+    }//GEN-LAST:event_showToolbarActionPerformed
+
+    private void showStatusbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showStatusbarActionPerformed
+        // TODO add your handling code here:
+        if(showStatusbar.isSelected()) {
+            this.turnLabel.setVisible(true);
+        } else {
+            this.turnLabel.setVisible(false);
+        }
+    }//GEN-LAST:event_showStatusbarActionPerformed
+
+    private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
+        // TODO add your handling code here:
+        this.mapEditor.setVisible(true);
+    }//GEN-LAST:event_createButtonActionPerformed
+
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        // TODO add your handling code here:
+        for (int i = 0; i < grid.length; i++) {
+            Box box = grid[i];
+            if(box.getPlanet() != null) {
+                planets.add(box.getPlanet());
+            }
+        }
+        JFileChooser saver = new JFileChooser();
+        saver.showSaveDialog(this);
+        saver.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if(saver.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            try {
+                this.path = saver.getSelectedFile().toString();
+                fileDriver.writeSaveFile(path, mapStructure.getMap(), mapStructure.getNeutral(), planets, players);
+                path += "/" + mapStructure.getMap().getId() + ".save";
+                
+            } catch (IOException ex) {
+                Logger.getLogger(MapEditor.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(MapEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_saveButtonActionPerformed
+
+    private void measureButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_measureButtonActionPerformed
+        // TODO add your handling code here:
+        measureButton.setEnabled(false);
+        measurement = true;
+        this.measurementCounter = 1;
+        setPlayerInstructions(playerInTurn, measurementCounter);
+        measurementCounter++;
+    }//GEN-LAST:event_measureButtonActionPerformed
+
+    private void loadItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadItemActionPerformed
+        // TODO add your handling code here:
+        this.file = "";
         JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Open JSON file");
+        chooser.setDialogTitle("Open .save file");
         if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            this.path = chooser.getSelectedFile().getAbsolutePath();
+            this.path = chooser.getSelectedFile().getPath();
             try {
                 this.file = fileDriver.readInputFile(path);
-                this.lexer = new JSONLexer(new StringReader(file), this);
-                this.parser = new JSONParser(lexer, this);
+                this.lexer = new XMLlexer(new StringReader(file), (PrincipalFrame) this.getParent());
+                this.parser = new XMLParser(lexer, (PrincipalFrame) this.getParent());
                 this.parser.parse();
-                this.mapStructure = parser.getStructure();
+                //Obtiene datos a usar en el frame principal relacionados al funcionamiento del juego.
+                this.loading = parser.getStructure();
+                this.mapStructure = loading.getStructure();
+                this.players = mapStructure.getPlayers();
+                //Coloca los datos obtenidos en la UI.
+                this.measurement = false;
                 this.started = true;
-                initGameDrivers();
+                this.showSpaceships = mapStructure.getNeutral().isShowSpaceships();
+                this.showStadistics = mapStructure.getNeutral().isShowstadistics();
+                this.accumulative = mapStructure.getMap().isAccumulate();
+                this.blindMap = mapStructure.getMap().isBlindMap();
+                this.players = mapStructure.getPlayers();
+                this.path = mapEditor.getPath();
+                startGame();
             } catch (IOException ex) {
-                structure.appendString(Color.RED, "Archivo no encontrado.\n", messageArea);
+                System.out.println("No se encontro el archivo");
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
-            components(started);
         }
-    }//GEN-LAST:event_newGameItemActionPerformed
+    }//GEN-LAST:event_loadItemActionPerformed
     
-    public void initGameDrivers() {
-        this.playerDriver = new PlayerDriver(mapStructure);
-        this.players = playerDriver.getPlayers();
+    public void generateMap(StructureDriver map) {
+        if(this.mapStructure.getMap().isRandomMap()) {
+            mapDriver = new MapDriver(map.getMap(), mapStructure.getNeutral().getProduction(), players);
+            gameDriver = new GameDriver(mapDriver.getPlayers(), generateCards(mapDriver.createdMap()), map.getMap().getRows(), map.getMap().getColumns());
+        } else {
+            mapDriver = new MapDriver(map.getMap(), map.getPlanets(), players);
+            gameDriver = new GameDriver(map.getPlayers(), generateCards(mapDriver.createdMap()), map.getMap().getRows(), map.getMap().getColumns());
+        }
+    }
+    
+    public void enableGrid() {
+        for (int i = 0; i < grid.length; i++) {
+            Box box = grid[i];
+            box.setEnabled(true);
+        }
+    }
+    
+    public Box[] generateCards(Box[] grid) {
+        this.grid = grid;
+        centralPanel.setLayout(new GridLayout(mapStructure.getMap().getRows(), mapStructure.getMap().getColumns()));
+        for (int i = 0; i < grid.length; i++) {
+            Box card = grid[i];
+            centralPanel.add(card);  
+            card.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    cardMouseClicked(evt);
+                }
+            });
+        }
+        return grid;
+    }
+    
+    public void changeToolTipText() {
+        for (int i = 0; i < grid.length; i++) {
+            Box box = grid[i];
+            box.setToolTipText(box.toString(showStadistics, showSpaceships, blindMap, playerInTurn.getName()));
+        }
+    }
+    
+    public void distanceMeasurement(Box box) {
+        switch(measurementCounter) {
+            case 2:
+                gameDriver.setOrigin(box);
+                setPlayerInstructions(playerInTurn, measurementCounter);
+                measurementCounter++;
+            break;
+            case 3:
+                gameDriver.setDestination(box);
+                int distance = gameDriver.distanceBetweenPlanets(mapStructure.getMap().getRows(), mapStructure.getMap().getColumns());
+                String message = "Distance between planets is: " + distance + " light years.\n"
+                        + "A ship leaving in this turn will arrive on turn " + (gameDriver.getTurnCounter()+ distance);
+                JOptionPane.showMessageDialog(this, message, "Distance", JOptionPane.INFORMATION_MESSAGE);
+                measurementCounter = 0;
+                measureButton.setEnabled(true);
+                measurement = false;
+                setPlayerInstructions(playerInTurn, counter);
+            break;
+        }
+    }
+    
+    public void cardMouseClicked(java.awt.event.MouseEvent evt) {
+        restartCounter();
+        Box card = (Box) evt.getSource();
+        if(measurement) {
+            distanceMeasurement(card);
+        } else {
+            switch(counter) {
+            case 1:
+                if(card.getPlanet() != null && !card.getPlanet().getOwner().equals("") && card.getPlanet().getOwner().equals(playerInTurn.getName())) {
+                    gameDriver.setOrigin(card);
+                    card.setEnabled(false);
+                    counter++;
+                    setPlayerInstructions(playerInTurn, counter);
+                } else if(card.getPlanet() != null && !card.getPlanet().getOwner().equals(playerInTurn.getName())){
+                    structure.appendError(Color.yellow, "Debe seleccionar un planeta origen, de su propiedad.", gameDriver.getTurnCounter(), messageArea);
+                } else {
+                    structure.appendError(Color.yellow, "Debe seleccionar un planeta origen.", gameDriver.getTurnCounter(), messageArea);
+                }
+            break;
+            case 2:
+                if(card.getPlanet()!= null) {
+                    gameDriver.setDestination(card);
+                    counter++;
+                    setPlayerInstructions(playerInTurn, counter);
+                    enableOrderButton();
+                }
+            break;           
+            } 
+        }
+    }
+
+    public void restartCounter() {
+        if(counter == 3) {
+            counter = 1;
+        }
+    }
+    
+    public void turn() {
+        String turn = "Turn #" + gameDriver.getTurnCounter();
+        turnLabel.setText(turn);
+    }
+    
+    public void setPlayerInstructions(Player player, int counter) {
+        String text = getHtmlColorCode(player);
+        switch (counter) {
+            case 1:
+                text += "</font><font color = white> Select source planet...</font></html>";
+                break;
+            case 2:
+                text += "</font><font color = white> Select destination planet...</font></html>";
+                break;
+            case 3:
+                text += "</font><font color = white> How many ships?</font></html>";
+                break;
+            default:
+                text = "Ocurrio un error.";
+        }
+        this.playerLabel.setText(text);
+    }
+    
+    private String getHtmlColorCode(Player player) {
+        String text = null;
+        if(player.getColor() == Color.CYAN) {
+            text = "<html><font color = Aqua>Player "+player.getName().replaceAll("\"", "")+":";
+        } else if(player.getColor() == Color.ORANGE) {
+            text = "<html><font color = #FF6600>Player "+player.getName().replaceAll("\"", "")+":";
+        } else if(player.getColor() == Color.GREEN) {
+            text = "<html><font color = #145a32>Player "+player.getName().replaceAll("\"", "")+":";
+        } else if(player.getColor() == Color.GRAY) {
+            text = "<html><font color = #808b96>Player "+player.getName().replaceAll("\"", "")+":";
+        } else if(player.getColor() == Color.MAGENTA) {
+            text = "<html><font color = #d81b60>Player "+player.getName().replaceAll("\"", "")+":";
+        } else if(player.getColor() == Color.PINK) {
+            text = "<html><font color = #f4d03f>Player "+player.getName().replaceAll("\"", "")+":";           
+        } else if(player.getColor() == Color.YELLOW) {
+            text = "<html><font color = #f1c40f>Player "+player.getName().replaceAll("\"", "")+":";
+        }
+        return text;
+    }
+    
+    public void verifyIfGameEnded() {
+        if(mapStructure.getMap().getEnding() > 0) {
+            if(gameDriver.endGame(mapStructure.getMap().getEnding())) {
+            //Mostramos resultados
+            //Limpiamos juego 
+            }
+        } 
+    }
+    
+    public void changeTurn() {
+        restartCounter();
+        gameDriver.conqueringManagement(structure, messageArea);
+        enableOrderButton();
+        gameDriver.registerRound(showStadistics, started, accumulative, blindMap, playerInTurn.getName());
+        playerInTurn = gameDriver.getPlayerInTurn(showStadistics,showSpaceships,accumulative);
+        changeToolTipText();
+        verifyIfGameEnded();
+        setPlayerInstructions(playerInTurn, counter);
+        turn();
+    }
+    
+    public void startGame() {       
+        generateMap(mapStructure);
+        this.counter = 1;
+        enableOrderButton();
+        playerInTurn = gameDriver.getPlayerInTurn(showStadistics,showSpaceships,accumulative);
+        changeToolTipText();
+        setPlayerInstructions(playerInTurn, counter);  
+        turn();
+    }
+    
+    public void enableOrderButton() {
+        switch (counter) {
+            case 3:
+               orderField.setEnabled(true);
+            break;
+            default:
+               orderField.setEnabled(false);
+        }
     }
     
     public void components(boolean started) {
@@ -370,7 +729,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
     }
     
     public void enableButtons(boolean enabled) {
-       editButton.setEnabled(enabled);
+       createButton.setEnabled(enabled);
        endButton.setEnabled(enabled);
        measureButton.setEnabled(enabled);
        saveButton.setEnabled(enabled);
@@ -383,6 +742,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
         endTurnButton.setVisible(show);
         turnLabel.setVisible(show);
         centralPanel.setVisible(show);
+        orderField.setVisible(show);
     }
     
     /*Imprime un mensaje informativo, al momento de que el parser detecta un error sintactico en el archivo JSON.
@@ -407,7 +767,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem abouItem;
     private javax.swing.JLabel background;
     private javax.swing.JPanel centralPanel;
-    private javax.swing.JButton editButton;
+    private javax.swing.JButton createButton;
     private javax.swing.JButton endButton;
     private javax.swing.JMenuItem endItem;
     private javax.swing.JButton endTurnButton;
@@ -433,9 +793,9 @@ public class PrincipalFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator secondSeparator;
     private javax.swing.JPopupMenu.Separator separator;
     private javax.swing.JMenu settingsMenu;
+    private javax.swing.JCheckBoxMenuItem showStatusbar;
+    private javax.swing.JCheckBoxMenuItem showToolbar;
     private javax.swing.JLabel standingLabel;
-    private javax.swing.JMenuItem statusbarItem;
-    private javax.swing.JMenuItem toolbarItem;
     private javax.swing.JPanel toolbarPanel;
     private javax.swing.JLabel turnLabel;
     // End of variables declaration//GEN-END:variables

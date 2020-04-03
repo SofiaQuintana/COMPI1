@@ -5,6 +5,7 @@
  */
 package com.zofia.dummyclasses;
 
+import java.awt.Color;
 import java.util.List;
 
 /**
@@ -15,11 +16,13 @@ public class Player {
     private String name;
     private List<Planet> starterPlanets; //Arreglo de planetas con los que inicia un jugador.
     private String type;
+    private Color color; 
 
-    public Player(String name, List<Planet> starterPlanets, String type) {
+    public Player(String name, List<Planet> starterPlanets, String type, Color color) {
         this.name = name;
         this.starterPlanets = starterPlanets;
         this.type = type;
+        this.color = color;
     }
 
     public String getName() {
@@ -44,6 +47,14 @@ public class Player {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
     
 }

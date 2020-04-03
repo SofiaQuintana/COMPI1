@@ -36,7 +36,8 @@ non terminal        starting, mapStructure, sizeStructure, randomMap, boolean, b
                     accumulation, neutralStructure, optionalAttributes, showSpaceships, endingAttribute,
                     showStadistics, planetAttributes, planetEnding, planetStructure, planets, neutrals, 
                     players, playerStructure, playerEnding, playerAttributes, ownedPlanets,
-                    symbol, type, ending;
+                    symbol, type, ending, neutralStructuration, neutralAttributes, neutralOptional,
+                    neutralEnding;
 
 /* Grammar */
 start with starting;
@@ -91,12 +92,25 @@ planetEnding ::= COMMA planetStructure
                  ;
 planetStructure ::= planetAttributes planetEnding;
 planets ::= PLANETAS COLON BRACKETO planetStructure;
-neutrals ::= PLANETAS_NEUTRALES COLON BRACKETO planetStructure;
+neutrals ::= PLANETAS_NEUTRALES COLON BRACKETO neutralStructuration;
 players ::= JUGADORES COLON BRACKETO playerStructure;
 playerStructure ::= playerAttributes playerEnding;
 playerEnding ::= COMMA playerStructure
                  | BRACKETC
                  ;
+neutralStructuration ::= neutralAttributes neutralEnding
+                     ;
+neutralAttributes ::= CURLYBRACESO nombre COLON NAME:n COMMA naves COLON INTEGER:i COMMA neutralOptional
+                      {: structure.setNeutralPlanets(n, Integer.valueOf(i)); :}
+                      ;
+neutralOptional ::= produccion COLON INTEGER:i COMMA porcentajeMuertes COLON PERCENTAGE:p CURLYBRACESC
+                    {: structure.setProductionAndDeathRate(Integer.valueOf(i), Double.valueOf(p)); :}
+                    | porcentajeMuertes COLON PERCENTAGE:p CURLYBRACESC
+                    {: structure.setProductionAndDeathRate(-1, Double.valueOf(p)); :}
+                    ;
+neutralEnding ::= COMMA neutralStructuration
+                  | BRACKETC COMMA
+                  ;
 playerAttributes ::= CURLYBRACESO nombre COLON PLAYER:p {: structure.setPlayerName(p); :} COMMA planetas COLON BRACKETO ownedPlanets
                      ; 
 ownedPlanets ::= NAME:n {: structure.setOwnedPlanets(n); :} symbol 

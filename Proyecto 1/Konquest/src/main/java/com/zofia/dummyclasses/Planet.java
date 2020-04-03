@@ -85,9 +85,42 @@ public class Planet {
         this.owner = owner;
     }
 
-    @Override
-    public String toString() {
-        return "Planet{" + "name=" + name + ", spaceships=" + spaceships + ", production=" + production + ", deathRate=" + deathRate + ", neutral=" + neutral + ", owner=" + owner + '}';
+    public String toString(boolean stadistics, boolean spaceships, boolean blindMap, String playerName) {
+        String planetInformation;
+        if(blindMap) {
+            if(owner.equals(playerName) || owner.equals("")) {
+                if(stadistics) {
+                    if(spaceships) {
+                        planetInformation = "<html>Planet name: " + name + "<br>Owner: " + owner + "<br>Ships: " + this.spaceships + "<br>Production: " + production + "<br>Kill Percent: " + deathRate + "</html>";
+                    } else {
+                        planetInformation = "<html>Planet name: " + name + "<br>Owner: " + owner + "<br>Production: " + production + "<br>Kill Percent: " + deathRate + "</html>";
+                    }
+                } else {
+                    if(spaceships) {
+                        planetInformation = "<html>Planet name: " + name + "<br>Ships: " + this.spaceships + "</html>";
+                    } else {
+                        planetInformation = "<html>Planet name: " + name+ "</html>";
+                    }
+                }
+            } else {
+                planetInformation = "<html>Planet name: " + name+ "</html>";
+            }
+        } else {
+            if(stadistics) {
+                if(spaceships) {
+                    planetInformation = "<html>Planet name: " + name + "<br>Owner: " + owner + "<br>Ships: " + this.spaceships + "<br>Production: " + production + "<br>Kill Percent: " + deathRate + "</html>";
+                } else {
+                    planetInformation = "<html>Planet name: " + name + "<br>Owner: " + owner + "<br>Production: " + production + "<br>Kill Percent: " + deathRate + "</html>";
+                }
+            } else {
+                if(spaceships) {
+                    planetInformation = "<html>Planet name: " + name + "<br>Ships: " + this.spaceships + "</html>";
+                } else {
+                    planetInformation = "<html>Planet name: " + name+ "</html>";
+                }
+            }
+        }
+        return planetInformation;
     }
     
 }

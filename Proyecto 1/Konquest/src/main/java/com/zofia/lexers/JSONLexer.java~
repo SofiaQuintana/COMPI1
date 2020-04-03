@@ -805,12 +805,12 @@ public class JSONLexer implements java_cup.runtime.Scanner {
             // fall through
           case 50: break;
           case 11: 
-            { printToken(yytext()); return symbol(sym.NAME, yytext());
+            { printToken("Name " + yytext()); return symbol(sym.NAME, yytext());
             } 
             // fall through
           case 51: break;
           case 12: 
-            { printToken(yytext()); return symbol(sym.ID, yytext());
+            { printToken("Id " + yytext()); return symbol(sym.ID, yytext());
             } 
             // fall through
           case 52: break;
@@ -820,7 +820,7 @@ public class JSONLexer implements java_cup.runtime.Scanner {
             // fall through
           case 53: break;
           case 14: 
-            { printToken(yytext()); return symbol(sym.PLAYER, yytext());
+            { printToken("Player " + yytext()); return symbol(sym.PLAYER, yytext());
             } 
             // fall through
           case 54: break;
@@ -865,7 +865,7 @@ public class JSONLexer implements java_cup.runtime.Scanner {
             // fall through
           case 62: break;
           case 23: 
-            { printToken("alAzar"); return symbol(sym.alAzar, "");
+            { printToken("alAzar"); return symbol(sym.alAzar, "alAzar");
             } 
             // fall through
           case 63: break;

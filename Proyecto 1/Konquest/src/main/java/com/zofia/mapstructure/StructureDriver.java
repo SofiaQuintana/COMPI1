@@ -9,6 +9,7 @@ import com.zofia.dummyclasses.Map;
 import com.zofia.dummyclasses.Neutral;
 import com.zofia.dummyclasses.Planet;
 import com.zofia.dummyclasses.Player;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +27,9 @@ public class StructureDriver {
     private List<Planet> planets;
     private List<Player> players;
     private List<Planet> ownedPlanets;
-
-        
+    private int production;
+    private double deathRate;
+    
     public StructureDriver() {
         this.map = new Map("", 0, 0, false, 0, false, false, 0);
         this.neutral = new Neutral(false, false, 0);
@@ -46,6 +48,7 @@ public class StructureDriver {
     }
     
     public void setOptionalAttributes(String identifier, int ending) {
+        System.out.println(identifier + " " + temporal);
         switch(identifier) {
             case "alAzar":
                 this.map.setRandomMap(temporal);
@@ -85,35 +88,68 @@ public class StructureDriver {
     }
     
     public void setPlanetAttributes(String name, int spaceships, int production, double deathRate) {
-        System.out.println("Entre a atributos de planeta: " + name + " " + spaceships + " " + production + " " + deathRate);
         this.planet = new Planet(name, spaceships, production, deathRate, true);
-        System.out.println(planet);
         this.planets.add(planet);
     }
     
+    public void setNeutralPlanets(String name, int spaceships) {
+        this.planet = new Planet(name, spaceships, production, deathRate, true);
+        this.planets.add(planet);
+    }
+    
+    public void setProductionAndDeathRate(int production, double deathRate) {
+        if(production < 0) {
+            this.production = this.neutral.getProduction();
+        } else {
+            this.production = production;
+        }
+        this.deathRate = deathRate;
+    }
+    
     public void setOwnedPlanets(String name) {
-        System.out.println("array size: "+planets.size());
-        System.out.println("Entre a planetas con propietario, en el planeta: " + name);
-        for(Planet temporalPlanet : this.planets) {
-            if(temporalPlanet.getName().equals(name)) {
-                this.ownedPlanets.add(temporalPlanet);
+        for(int i = 0; i < planets.size(); i++){
+            if(name.equals(planets.get(i).getName())){
+                planets.get(i).setOwner(playerName);
+                ownedPlanets.add(planets.get(i));
+                planets.remove(i);
+                i--;
             }
         }
-        System.out.println("Sali de planetas con propietario.");
+    }
+    
+    public Color getPlayerColor() {
+        int counter = (int) (Math.random() * 7 + 1);
+        switch(counter) {
+            case 1: 
+                return Color.MAGENTA;
+            case 2:
+                return Color.GREEN;
+            case 3:
+                return Color.CYAN;
+            case 4:
+                return Color.PINK;
+            case 5:
+                return Color.GRAY;
+            case 6:
+                return Color.YELLOW;
+            default:
+                return Color.ORANGE;
+        }
     }
   
     public void setPlayerAttributes(String type) {
-        System.out.println("Entre a atributos de jugador: Nombre " + playerName + ", tipo: " + type + " y size array: " + ownedPlanets.size());
-        this.ownedPlanets.forEach((temporalPlanet) -> {
-            temporalPlanet.setOwner(playerName);
-        });
-        this.player = new Player(playerName, ownedPlanets, type);
+        this.player = new Player(playerName, new ArrayList<Planet>(), type, getPlayerColor());
+        for(int i = 0; i < ownedPlanets.size(); i++){
+            if(playerName.equals(ownedPlanets.get(i).getOwner())){
+                player.getStarterPlanets().add(ownedPlanets.get(i));
+                ownedPlanets.remove(i);
+                i--;
+            }
+        }
         this.players.add(player);
-        this.ownedPlanets.clear();
     }
 
     public void setPlayerName(String playerName) {
-        System.out.println("Entre a nombre de jugador: " + playerName);
         this.playerName = playerName;
     }
 
@@ -124,4 +160,37 @@ public class StructureDriver {
     public List<Player> getPlayers() {
         return players;
     }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public void setMap(Map map) {
+        this.map = map;
+    }
+
+    public Neutral getNeutral() {
+        return neutral;
+    }
+
+    public void setNeutral(Neutral neutral) {
+        this.neutral = neutral;
+    }
+
+    public List<Planet> getOwnedPlanets() {
+        return ownedPlanets;
+    }
+
+    public void setOwnedPlanets(List<Planet> ownedPlanets) {
+        this.ownedPlanets = ownedPlanets;
+    }
+
+    public void setPlanets(List<Planet> planets) {
+        this.planets = planets;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+    
 }

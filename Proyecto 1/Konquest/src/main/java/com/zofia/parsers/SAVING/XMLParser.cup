@@ -1,0 +1,89 @@
+package com.zofia.parsers.SAVING;
+import java_cup.runtime.Symbol;
+import com.zofia.lexers.XMLlexer;
+import com.zofia.mapstructure.LoadStructure;
+import com.zofia.frontend.PrincipalFrame;
+
+parser code {:
+    private PrincipalFrame principalFrame;
+    private LoadStructure structure = new LoadStructure();
+
+    public XMLParser(XMLlexer lexer, PrincipalFrame principalFrame) {
+        super(lexer);
+       this.principalFrame = principalFrame;
+    }
+
+    public void syntax_error(Symbol symbol) {
+        this.principalFrame.printSyntaxError(String.valueOf(symbol.value), sym.terminalNames[symbol.sym]);
+    }
+
+    public LoadStructure getStructure() {
+        return structure;
+    }
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     MAPA, JUEGO, id, SIZE, filas, columnas, alAzar, TRUE, FALSE, planetasNeutrales, mapaCiego,
+                    acumular, NEUTRALES, mostrarNaves, mostrarEstadisticas, produccion, finalizacion,
+                    PLANETAS, nombre, naves, porcentajeMuertes, CONQUISTADO, NEUTRAL, propietario, JUGADORES, JUGADOR,
+                    tipo, HUMANO, FACIL, DIFICIL, color, MAYORQUE, MENORQUE, SLASH, EQUAL, NAME, PLAYER, ID;
+terminal String     INTEGER;
+terminal String     PERCENTAGE;
+
+/* No Terminales... */
+non terminal        starting, initialEtiquete, map, mapStructure, boolean, size, 
+                    neutrals, neutralsStructure, conquered, neutral, planetStructure,
+                    planets, playerAttributes, players, option, type;
+
+/* Grammar */
+start with starting;
+
+starting ::= initialEtiquete map planets players
+             | error:e MENORQUE SLASH MAPA MAYORQUE {: syntax_error((Symbol) e); :}
+             ;
+initialEtiquete ::= MENORQUE JUEGO MAYORQUE;
+map ::= MENORQUE MAPA mapStructure MAYORQUE size neutrals ;
+mapStructure ::= id:d EQUAL ID:i {: structure.setMapValues(d, i, 0); :} mapStructure 
+                 | alAzar:a EQUAL boolean {: structure.setMapValues(a, "", 0); :} mapStructure 
+                 | planetasNeutrales:p EQUAL INTEGER:i {: structure.setMapValues(p, "", Integer.valueOf(i)); :} mapStructure 
+                 | mapaCiego:m EQUAL boolean {: structure.setMapValues(m, "", 0); :} mapStructure 
+                 | acumular:a EQUAL boolean {: structure.setMapValues(a, "", 0); :} mapStructure 
+                 | finalizacion:f EQUAL INTEGER:i {: structure.setMapValues(f, "", Integer.valueOf(i)); :}
+                 ;
+size ::= MENORQUE SIZE filas EQUAL INTEGER:i columnas EQUAL INTEGER:e SLASH MAYORQUE
+         {: structure.setSize(Integer.valueOf(i), Integer.valueOf(e)); :}
+         ;
+neutrals ::= MENORQUE NEUTRALES neutralsStructure SLASH MAYORQUE;
+neutralsStructure ::= mostrarNaves:m EQUAL boolean {: structure.setNeutralValues(m, 0); :} neutralsStructure
+                      | mostrarEstadisticas:m EQUAL boolean {: structure.setNeutralValues(m, 0); :} neutralsStructure
+                      | produccion:p EQUAL INTEGER:i {: structure.setNeutralValues(p, Integer.valueOf(i)); :}
+                      ;
+boolean ::= FALSE {: structure.setTemporal(false); :}
+            | TRUE {: structure.setTemporal(true); :}
+            ;
+
+conquered ::= CONQUISTADO nombre EQUAL NAME:n naves EQUAL INTEGER:i produccion EQUAL INTEGER:e
+                     porcentajeMuertes EQUAL PERCENTAGE:p propietario EQUAL PLAYER:b SLASH MAYORQUE
+                     {: structure.addPlanet(n, Integer.valueOf(i), Integer.valueOf(e), Double.valueOf(p), b); :}
+                     ;
+neutral ::= NEUTRAL nombre EQUAL NAME:n naves EQUAL INTEGER:i produccion EQUAL INTEGER:e
+            porcentajeMuertes EQUAL PERCENTAGE:p SLASH MAYORQUE
+            {: structure.addPlanet(n, Integer.valueOf(i), Integer.valueOf(e), Double.valueOf(p), ""); :}
+            ;
+planetStructure ::= conquered 
+                 | MENORQUE planetStructure
+                 | neutral
+                 | MENORQUE SLASH PLANETAS MAYORQUE
+                 ;
+planets ::= MENORQUE PLANETAS MAYORQUE  planetStructure;
+players ::= MENORQUE JUGADORES MAYORQUE playerAttributes;
+
+playerAttributes ::= MENORQUE JUGADOR nombre EQUAL PLAYER:p color EQUAL ID:i {: structure.setName(p); structure.setColor(i); :} tipo EQUAL type SLASH MAYORQUE option
+                     ; 
+option ::= playerAttributes option
+           | MENORQUE SLASH MAPA MAYORQUE
+           ;
+type ::= HUMANO:h {: structure.setPlayerAttributes(h); :}
+         | FACIL:f {: structure.setPlayerAttributes(f); :}
+         | DIFICIL:d {: structure.setPlayerAttributes(d); :}
+         ;

@@ -1,12 +1,12 @@
 package com.zofia.lexers;
 import java_cup.runtime.*;
-import com.zofia.parsers.JSON.sym;
+import com.zofia.parsers.XML.sym;
 import com.zofia.frontend.PrincipalFrame;
 
 %%//Area Break
 
 %public
-%class JSONLexer
+%class XMLlexer
 %cup
 %cupdebug
 %line
@@ -27,7 +27,7 @@ Name = ("\"")({Letter})({Letter})?({Letter})?("\"")
 %{
     private PrincipalFrame frame;
     
-    public JSONLexer(java.io.Reader in, PrincipalFrame frame) {
+    public XMLlexer(java.io.Reader in, PrincipalFrame frame) {
         this.zzReader = in;
         this.frame = frame;
     }
@@ -55,9 +55,10 @@ Name = ("\"")({Letter})({Letter})?({Letter})?("\"")
 
 <YYINITIAL> {
     /* Keywords */
+    "JUEGO"                     { printToken("JUEGO"); return symbol(sym.JUEGO, "JUEGO"); }
     "MAPA"                      { printToken("MAPA"); return symbol(sym.MAPA, "MAPA"); }
     "id"                        { printToken("Id"); return symbol(sym.id, "id");}
-    "tamaño"                    { printToken("tamaño"); return symbol(sym.tamaño, "tamaño");}
+    "SIZE"                      { printToken("SIZE"); return symbol(sym.SIZE, "SIZE");}
     "filas"                     { printToken("filas"); return symbol(sym.filas, "filas");}
     "columnas"                  { printToken("columnas"); return symbol(sym.columnas, "columnas");}
     "alAzar"                    { printToken("alAzar"); return symbol(sym.alAzar, "alAzar");}
@@ -71,24 +72,25 @@ Name = ("\"")({Letter})({Letter})?({Letter})?("\"")
     "mostrarEstadisticas"       { printToken("mostrarEstadisticas"); return symbol(sym.mostrarEstadisticas, "mostrarEstadisticas");}
     "produccion"                { printToken("produccion"); return symbol(sym.produccion, "produccion");}
     "finalizacion"              { printToken("finalizacion"); return symbol(sym.finalizacion, "finalizacion");}
+    "CONQUISTADO"               { printToken("CONQUISTADO"); return symbol(sym.CONQUISTADO, "CONQUISTADO"); }
     "PLANETAS"                  { printToken("PLANETAS"); return symbol(sym.PLANETAS, "PLANETAS");}
     "nombre"                    { printToken("nombre"); return symbol(sym.nombre, "nombre");}
     "naves"                     { printToken("naves"); return symbol(sym.naves, "naves");}
+    "propietario"               { printToken("propietario"); return symbol(sym.propietario, "propietario");}
     "porcentajeMuertes"         { printToken("porcentajeMuertes"); return symbol(sym.porcentajeMuertes, "porcentajeMuertes");}
-    "PLANETAS_NEUTRALES"        { printToken("PLANETAS_NEUTRALES"); return symbol(sym.PLANETAS_NEUTRALES, "PLANETAS_NEUTRALES");}
+    "NEUTRAL"                   { printToken("NEUTRAL"); return symbol(sym.NEUTRAL, "NEUTRAL");}
     "JUGADORES"                 { printToken("JUGADORES"); return symbol(sym.JUGADORES, "JUGADORES");}
-    "planetas"                  { printToken("planetas"); return symbol(sym.planetas, "planetas");}
+    "JUGADOR"                   { printToken("JUGADOR"); return symbol(sym.JUGADOR, "JUGADOR");}
+    "color"                     { printToken("color"); return symbol(sym.color, "color");}
     "tipo"                      { printToken("tipo"); return symbol(sym.tipo, "tipo");}
     "HUMANO"                    { printToken("HUMANO"); return symbol(sym.HUMANO, "HUMANO");}
     "FACIL"                     { printToken("FACIL"); return symbol(sym.FACIL, "FACIL");}
     "DIFICIL"                   { printToken("DIFICIL"); return symbol(sym.DIFICIL, "DIFICIL");}
     /* Signs */
-    "{"                         { printToken("{"); return symbol(sym.CURLYBRACESO, "{");}
-    "}"                         { printToken("}"); return symbol(sym.CURLYBRACESC, "}");}
-    ":"                         { printToken(":"); return symbol(sym.COLON, ":");}
-    ","                         { printToken(","); return symbol(sym.COMMA, ",");}
-    "["                         { printToken("["); return symbol(sym.BRACKETO, "[");}
-    "]"                         { printToken("]"); return symbol(sym.BRACKETC, "]");}
+    "<"                         { printToken("<"); return symbol(sym.MAYORQUE, "<");}
+    ">"                         { printToken(">"); return symbol(sym.MENORQUE, ">");}
+    "="                         { printToken("="); return symbol(sym.EQUAL, "=");}
+    "/"                         { printToken("/"); return symbol(sym.SLASH, "/");}
     /* Others */
     {Name}                      { printToken("Name " + yytext()); return symbol(sym.NAME, yytext());}
     {Player}                    { printToken("Player " + yytext()); return symbol(sym.PLAYER, yytext());}    
