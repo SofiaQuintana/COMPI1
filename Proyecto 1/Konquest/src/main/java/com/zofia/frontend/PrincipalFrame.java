@@ -517,7 +517,7 @@ public class PrincipalFrame extends javax.swing.JFrame {
             try {
                 this.file = fileDriver.readInputFile(path);
                 this.lexer = new XMLlexer(new StringReader(file), this);
-                this.parser = new XMLParser(lexer, (PrincipalFrame) this);
+                this.parser = new XMLParser(lexer, this);
                 this.parser.parse();
                 //Obtiene datos a usar en el frame principal relacionados al funcionamiento del juego.
                 this.loading = parser.getStructure();
