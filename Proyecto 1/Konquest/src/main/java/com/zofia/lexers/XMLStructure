@@ -87,8 +87,8 @@ Name = ("\"")({Letter})({Letter})?({Letter})?("\"")
     "FACIL"                     { printToken("FACIL"); return symbol(sym.FACIL, "FACIL");}
     "DIFICIL"                   { printToken("DIFICIL"); return symbol(sym.DIFICIL, "DIFICIL");}
     /* Signs */
-    "<"                         { printToken("<"); return symbol(sym.MAYORQUE, "<");}
-    ">"                         { printToken(">"); return symbol(sym.MENORQUE, ">");}
+    "<"                         { printToken("<"); return symbol(sym.MENORQUE, "<");}
+    ">"                         { printToken(">"); return symbol(sym.MAYORQUE, ">");}
     "="                         { printToken("="); return symbol(sym.EQUAL, "=");}
     "/"                         { printToken("/"); return symbol(sym.SLASH, "/");}
     /* Others */

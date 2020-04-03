@@ -769,12 +769,12 @@ public class XMLlexer implements java_cup.runtime.Scanner {
             // fall through
           case 45: break;
           case 4: 
-            { printToken("<"); return symbol(sym.MENORQUE, "<");
+            { printToken("<"); return symbol(sym.MAYORQUE, "<");
             } 
             // fall through
           case 46: break;
           case 5: 
-            { printToken(">"); return symbol(sym.MAYORQUE, ">");
+            { printToken(">"); return symbol(sym.MENORQUE, ">");
             } 
             // fall through
           case 47: break;

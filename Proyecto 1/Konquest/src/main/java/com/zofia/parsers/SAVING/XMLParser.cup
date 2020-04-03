@@ -42,7 +42,7 @@ starting ::= initialEtiquete map planets players
              | error:e MENORQUE SLASH MAPA MAYORQUE {: syntax_error((Symbol) e); :}
              ;
 initialEtiquete ::= MENORQUE JUEGO MAYORQUE;
-map ::= MENORQUE MAPA mapStructure MAYORQUE size neutrals ;
+map ::= MENORQUE MAPA mapStructure MAYORQUE size neutrals MENORQUE SLASH MAPA MAYORQUE;
 mapStructure ::= id:d EQUAL ID:i {: structure.setMapValues(d, i, 0); :} mapStructure 
                  | alAzar:a EQUAL boolean {: structure.setMapValues(a, "", 0); :} mapStructure 
                  | planetasNeutrales:p EQUAL INTEGER:i {: structure.setMapValues(p, "", Integer.valueOf(i)); :} mapStructure 
