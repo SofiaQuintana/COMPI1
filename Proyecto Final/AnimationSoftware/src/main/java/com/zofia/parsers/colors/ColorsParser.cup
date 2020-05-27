@@ -1,0 +1,124 @@
+package com.zofia.parsers.colors;
+import java_cup.runtime.Symbol;
+import com.zofia.lexers.ColorsLexer;
+import java.awt.Color;
+import com.zofia.dummyclasses.CanvasColor;
+import java.util.HashMap;
+import com.zofia.drivers.CanvasDriver;
+import com.zofia.logic.Error;
+
+parser code {:
+    private HashMap<String, CanvasColor> colors;
+    private HashMap<String, String> table;
+    private HashMap<String, String> variables;
+    private CanvasDriver driver; 
+
+    public ColorsParser(ColorsLexer lexer, HashMap<String,String> table, CanvasDriver driver) {
+        super(lexer);
+        this.colors = new HashMap<>();
+        this.table = table;
+        this.driver = driver;
+    }
+
+    public void syntax_error(Symbol symbol) {
+        System.out.println("error sintactico en: " + symbol.sym);
+        Error error = new Error(symbol.right,(symbol.left - 1), "Sintactico", "Elemento sintactico desconocido: '" + (String)symbol.value + "'.");
+        driver.getErrors().add(error);
+    }
+
+    public void logic_error(String lexeme, int line, int column, int type) {
+        Error error = null;
+        String message;
+        switch(type) {
+            case 0:
+                message = "Ya existe un color con el identificador: " + lexeme + ", el color sera descartado.";
+                error = new Error(line,column, "Semantico", message);
+            break;
+            case 1:
+                message = "No existe un lienzo con el identificador: " + lexeme + 
+                            ", todos los colores de dicho identificador seran descartados.";
+                error = new Error(line,column, "Semantico", message);
+            break;
+            case 2:
+                message = "Ya se le han asignado colores al lienzo: " + lexeme + 
+                            ", todos los colores de dicho identificador seran descartados.";
+                error = new Error(line,column, "Semantico", message);
+            break;
+        }
+        driver.getErrors().add(error);
+    }
+
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     CURLYBRACKETO, CURLYBRACKETC, COLORES, ID, RED, BLUE, GREEN, COLON, 
+                    COMMA, HEX, HEXCODE;
+terminal Integer    INT;
+
+/* No Terminales... */
+non terminal            starting, colorsStructure, canvasColors,  
+                        anotherColor, endingCanvas, specificColor;
+non terminal Color      hexCode, redPermutations, greenPermutations, bluePermutations, 
+                        rgbCode, tone;
+non terminal Integer    red, green, blue;
+/* Grammar */
+start with starting;
+
+/* --------------------------------------GENERAL CANVAS JSON STRUCTURE--------------------------------------------*/
+
+starting ::= CURLYBRACKETO colorsStructure CURLYBRACKETC;
+colorsStructure ::= COLORES COLON CURLYBRACKETO canvasColors CURLYBRACKETC;
+canvasColors ::= ID:id COLON CURLYBRACKETO specificColor
+                   {:   if(table.get(id) == null) {
+                            logic_error(id, idleft, idright, 1);
+                        } else {
+                            if(driver.isCanvasUsed(id) {
+                             logic_error(id, idleft, idright,2) 
+                            }
+                            driver.addColors(id, colors);
+                            colors = new HashMap<>();
+                        }
+                   :} endingCanvas;
+
+specificColor ::= ID:id COLON CURLYBRACKETO tone:color 
+                   {: if(colors.get(id) == null) {
+                        colors.put(id, new CanvasColor(id, color));
+                      } else {
+                        logic_error(id, idleft, idright, 0);
+                      }
+                   :} anotherColor
+                   | error:e anotherColor {: syntax_error((Symbol) e); :}
+                   ;
+
+tone ::= rgbCode:color {: RESULT = color; :}
+         | hexCode:color {: RESULT = color; :}
+         ;
+rgbCode ::= red:red COMMA redPermutations:color {: RESULT = new Color(red, color.getGreen(), color.getBlue()); :}
+            | green:green COMMA greenPermutations:color {: RESULT = new Color(color.getRed(), green, color.getBlue()); :}
+            | blue:blue COMMA bluePermutations:color {: RESULT = new Color(color.getRed(), color.getGreen(), blue); :}
+            ;
+red ::= RED COLON INT:integer {: RESULT = integer; :};
+green ::= GREEN COLON INT:integer {: RESULT = integer; :};
+blue ::= BLUE COLON INT:integer {: RESULT = integer; :};
+
+/*-----------------------------RGB BACKGROUND STRUCTURE PERMUTATIONS-----------------------------*/
+redPermutations ::= green:green COMMA blue:blue {: RESULT = new Color(0, green, blue); :}
+                    | blue:blue COMMA green:green {: RESULT = new Color(0, green, blue); :}
+                    ;
+greenPermutations ::= red:red COMMA blue:blue {: RESULT = new Color(red, 0, blue); :}
+                      | blue:blue COMMA red:red {: RESULT = new Color(red, 0, blue); :}
+                      ;
+bluePermutations ::= green:green COMMA red:red {: RESULT = new Color(red, green, 0); :}
+                     | red:red COMMA green:green {: RESULT = new Color(red, green, 0); :}
+                     ;
+
+/*-------------------------------------------------------------------------------------*/
+hexCode ::= HEX COLON HEXCODE:hexcode {: RESULT = Color.decode(hexcode); :};
+
+anotherColor ::= CURLYBRACKETC COMMA specificColor
+                 | CURLYBRACKETC
+                 ;
+
+endingCanvas ::= CURLYBRACKETC COMMA canvasColors 
+                 | CURLYBRACKETC
+                 ;

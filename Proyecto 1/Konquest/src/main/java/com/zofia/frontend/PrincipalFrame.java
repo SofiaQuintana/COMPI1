@@ -747,10 +747,11 @@ public class PrincipalFrame extends javax.swing.JFrame {
     
     /*Imprime un mensaje informativo, al momento de que el parser detecta un error sintactico en el archivo JSON.
      *Indica el token en el que se presento el error.  */
-    public void printSyntaxError(String value, String token) {
+    public void printSyntaxError(String value, String token, int column, int row) {
         structure.appendString(Color.YELLOW, "Se presento un error en la estructura en: ", messageArea);
         structure.appendString(Color.RED, value, messageArea);
         structure.appendString(Color.YELLOW, ", se esperaba el token: ", messageArea);
+        structure.appendString(Color.yellow, "en la columna: " + column + " y en la fila: " + row, messageArea);
         structure.appendString(Color.RED, token + "\n", messageArea);
     }
     

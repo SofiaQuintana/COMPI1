@@ -44,6 +44,8 @@ start with starting;
 
 starting ::= CURLYBRACESO mapStructure optionalAttributes endingAttribute planets neutrals players ending
              | error:e BRACKETC CURLYBRACESC {: syntax_error((Symbol) e); :}
+             | error:e mapStructure {: syntax_error((Symbol) e); :}
+             | error:e optionalAttributes {: syntax_error((Symbol) e); :}
              ;
 mapStructure ::= MAPA COLON CURLYBRACESO id COLON ID:i COMMA sizeStructure
                  {: structure.setMapId(i); :}
@@ -86,6 +88,7 @@ endingAttribute ::= finalizacion:f COLON INTEGER:i endingAttribute
 planetAttributes ::= CURLYBRACESO nombre COLON NAME:n COMMA naves COLON INTEGER:i COMMA produccion COLON INTEGER:e COMMA
                      porcentajeMuertes COLON PERCENTAGE:p CURLYBRACESC
                      {: structure.setPlanetAttributes(n, Integer.valueOf(i), Integer.valueOf(e), Double.valueOf(p)); :}
+                     | error: e {: ((Symbol) e); :}
                      ;
 planetEnding ::= COMMA planetStructure  
                  | BRACKETC COMMA 

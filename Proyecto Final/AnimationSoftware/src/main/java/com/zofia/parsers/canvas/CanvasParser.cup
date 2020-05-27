@@ -1,0 +1,178 @@
+package com.zofia.parsers.canvas;
+import java_cup.runtime.Symbol;
+import com.zofia.lexers.CanvasLexer;
+import java.util.HashMap;
+import java.awt.Color;
+import com.zofia.dummyclasses.Square;
+import com.zofia.dummyclasses.Canvas;
+import java.awt.Dimension;
+import com.zofia.drivers.CanvasDriver;
+import com.zofia.logic.Error;
+
+parser code {:
+    private HashMap<String, String> table;
+    private CanvasDriver driver;
+    private boolean error;
+
+    public CanvasParser(CanvasLexer lexer, HashMap<String, String> table, CanvasDriver driver) {
+        super(lexer);
+        this.table = table;
+        this.driver = driver;
+        this.error = false;
+    }
+
+    public void syntax_error(Symbol symbol) {
+        System.out.println("error sintactico en: " + symbol.sym);
+        Error error = new Error(symbol.right,(symbol.left - 1), "Sintactico", "Elemento sintactico desconocido: '" + (String)symbol.value + "'.");
+        driver.getErrors().add(error);
+    }
+
+    public void logic_error(String lexeme, int line, int column) {
+        Error error = new Error(line,column, "Semantico", "El lienzo '" + lexeme + "' ya existe en el ambito actual.");
+        driver.getErrors().add(error);
+    }
+:}
+
+/* Terminales... (tokens RESULT by the scanner) */
+terminal String     CURLYBRACKETO, CURLYBRACKETC, LIENZOS, ID, NOMBRE, NAME, TIPO, PNG, GIF, FONDO, RED, BLUE, GREEN, SIZE, 
+                    COLON, COMMA, CUADRO, DIMENSIONX, DIMENSIONY, HEX, HEXCODE;
+terminal Integer    INT;
+
+/* No Terminales... */
+non terminal         starting, canvasStructure, specificCanvas;
+non terminal String  name, type, extension;
+non terminal Color   background, backgroundType, rgbBackground, hexBackground, redPermutations, greenPermutations,
+                     bluePermutations;
+non terminal Integer red, green, blue, square, x, y;
+non terminal Square  size, sizeStructure, squarePermutations, xPermutations, yPermutations;
+non terminal Canvas  structure, namePermutations, sizePermutations, typePermutations, backgroundPermutations;
+/* Grammar */
+start with starting;
+
+/* --------------------------------------GENERAL CANVAS JSON STRUCTURE--------------------------------------------*/
+
+starting ::= CURLYBRACKETO canvasStructure CURLYBRACKETC;
+canvasStructure ::= LIENZOS COLON CURLYBRACKETO specificCanvas CURLYBRACKETC;
+specificCanvas ::= ID:id COLON CURLYBRACKETO structure:canvas CURLYBRACKETC  
+                    {: if(table.get(id) == null) {
+                        canvas.setId(id);
+                        driver.addCanvas(canvas);
+                        table.put(id,id);
+                      } else {
+                        logic_error(id, idleft-1, idright);
+                      }
+                    :} COMMA specificCanvas
+                    | ID:id COLON CURLYBRACKETO structure:canvas CURLYBRACKETC
+                    {: if(table.get(id) == null) {
+                        canvas.setId(id);
+                        driver.addCanvas(canvas);
+                        table.put(id,id);
+                      } else {
+                        logic_error(id, idleft-1, idright);
+                      }
+                    :} 
+                   ;
+structure ::= name:name COMMA namePermutations:canvas {: RESULT = new Canvas("",name,canvas.getType(), canvas.getColor(), canvas.getSquare()); :}
+              | type:type COMMA typePermutations:canvas {: RESULT = new Canvas("",canvas.getName(),type.substring(1, (type.length() - 1)), canvas.getColor(), canvas.getSquare()); :}
+              | size:size COMMA sizePermutations:canvas {: RESULT = new Canvas("",canvas.getName(),canvas.getType(), canvas.getColor(), size); :}
+              | background:color COMMA backgroundPermutations:canvas {: RESULT = new Canvas("",canvas.getName(),canvas.getType(), color, canvas.getSquare()); :}
+              | error:e CURLYBRACKETC  {: syntax_error((Symbol) e); :}
+              ;
+
+name ::= NOMBRE COLON NAME:name {: RESULT = name.substring(1,(name.length()-1)); :}
+         ;
+
+type ::= TIPO COLON extension:extension {: RESULT = extension; :}
+         ;
+
+extension ::= PNG:png {: RESULT = png; :}
+              | GIF:gif {: RESULT = gif; :}
+              ;
+
+background ::= FONDO COLON CURLYBRACKETO backgroundType:color CURLYBRACKETC {: RESULT = color; :};
+backgroundType ::= rgbBackground:color {: RESULT = color; :}
+                   | hexBackground:color {: RESULT = color; :}
+                   ;
+rgbBackground ::= red:red COMMA redPermutations:color 
+                  {: RESULT = new Color(red, color.getGreen(), color.getBlue()); :}
+                  | green:green COMMA greenPermutations:color
+                  {: RESULT = new Color(color.getRed(), green, color.getBlue()); :}
+                  | blue:blue COMMA bluePermutations:color
+                  {: RESULT = new Color(color.getRed(), color.getGreen(), blue); :}
+                  ;
+red ::= RED COLON INT:integer {: RESULT = Integer.valueOf(integer); :};
+green ::= GREEN COLON INT:integer {: RESULT = integer; :};  
+blue ::= BLUE COLON INT:integer {: RESULT = integer; :};
+
+/*-----------------------------RGB BACKGROUND STRUCTURE PERMUTATIONS-----------------------------*/
+redPermutations ::= green:green COMMA blue:blue {: RESULT = new Color(0,green,blue); :}
+                    | blue:blue COMMA green:green {: RESULT = new Color(0,green,blue); :}
+                    ;
+greenPermutations ::= red:red COMMA blue:blue {: RESULT = new Color(red,0,blue); :}
+                      | blue:blue COMMA red:red {: RESULT = new Color(red,0,blue); :}
+                      ;
+bluePermutations ::= green:green COMMA red:red {: RESULT = new Color(red,green,0); :}
+                     | red:red COMMA green:green {: RESULT = new Color(red,green,0); :}
+                     ;
+
+/*-------------------------------------------------------------------------------------*/
+hexBackground ::= HEX COLON HEXCODE:hexcode {: RESULT = Color.decode(hexcode); :}
+                  ;
+size ::= SIZE COLON CURLYBRACKETO sizeStructure:square CURLYBRACKETC {: RESULT = square; :};
+sizeStructure ::= square:size COMMA squarePermutations:square 
+                  {: RESULT = new Square(square.getDimension(), size); :}
+                  | x:x COMMA xPermutations:square
+                  {: RESULT = new Square(new Dimension(x, (int) square.getDimension().getHeight()), square.getSize()); :}
+                  | y:y COMMA yPermutations:square
+                  {: RESULT = new Square(new Dimension((int) square.getDimension().getWidth(), y), square.getSize()); :}
+                  ;
+
+square ::= CUADRO COLON INT:size {: RESULT = size; :}
+           ;
+
+x ::= DIMENSIONX COLON INT:x {: RESULT = x; :}
+      ;
+
+y ::= DIMENSIONY COLON INT:y {: RESULT = y; :}
+      ;
+
+/*-------------------------------SIZE STRUCTURE PERMUTATIONS---------------------------*/
+squarePermutations ::= x:x COMMA y:y {: RESULT = new Square(new Dimension(x,y), 0); :}
+                       | y:y COMMA x:x {: RESULT = new Square(new Dimension(x,y), 0); :}
+                       ;
+xPermutations ::= square:square COMMA y:y {: RESULT = new Square(new Dimension(0,y), square); :}
+                  | y:y COMMA square:square {: RESULT = new Square(new Dimension(0,y), square); :}
+                  ;
+yPermutations ::= square:square COMMA x:x {: RESULT = new Square(new Dimension(x,0), square); :}
+                  | x:x COMMA square:square {: RESULT = new Square(new Dimension(x,0), square); :}
+                  ;
+
+/*-----------------------------STRUCTURE PERMUTATIONS----------------------------------*/
+namePermutations ::= background:color COMMA size:size COMMA type:type {: RESULT = new Canvas("","",type.substring(1, (type.length() - 1)),color,size); :}
+                     | background:color COMMA type:type COMMA size:size {: RESULT = new Canvas("","",type.substring(1, (type.length() - 1)),color,size); :}
+                     | size:size COMMA type:type COMMA background:color {: RESULT = new Canvas("","",type.substring(1, (type.length() - 1)),color,size); :}
+                     | size:size COMMA background:color COMMA type:type {: RESULT = new Canvas("","",type.substring(1, (type.length() - 1)),color,size); :}
+                     | type:type COMMA size:size COMMA background:color {: RESULT = new Canvas("","",type.substring(1, (type.length() - 1)),color,size); :}
+                     | type:type COMMA background:color COMMA size:size {: RESULT = new Canvas("","",type.substring(1, (type.length() - 1)),color,size); :}
+                     ;
+sizePermutations ::= background:color COMMA name:name COMMA type:type {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),color,null); :}
+                     | background:color COMMA type:type COMMA name:name {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),color,null); :}
+                     | name:name COMMA background:color COMMA type:type {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),color,null); :}
+                     | name:name COMMA type:type COMMA background:color {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),color,null); :}
+                     | type:type COMMA background:color COMMA name:name {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),color,null); :}
+                     | type:type COMMA name:name COMMA background:color {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),color,null); :}
+                     ;
+backgroundPermutations ::= name:name COMMA type:type COMMA size:size {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),null,size); :}
+                           | name:name COMMA size:size COMMA type:type {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),null,size); :}
+                           | type:type COMMA name:name COMMA size:size {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),null,size); :}
+                           | type:type COMMA size:size COMMA name:name {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),null,size); :}
+                           | size:size COMMA name:name COMMA type:type {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),null,size); :}
+                           | size:size COMMA type:type COMMA name:name {: RESULT = new Canvas("",name,type.substring(1, (type.length() - 1)),null,size); :}
+                           ;
+typePermutations ::= name:name COMMA background:color COMMA size:size {: RESULT = new Canvas("",name,"",color,size); :}
+                     | name:name COMMA size:size COMMA background:color {: RESULT = new Canvas("",name,"",color,size); :}
+                     | background:color COMMA name:name COMMA size:size {: RESULT = new Canvas("",name,"",color,size); :}
+                     | background:color COMMA size:size COMMA name:name {: RESULT = new Canvas("",name,"",color,size); :}
+                     | size:size COMMA background:color COMMA name:name {: RESULT = new Canvas("",name,"",color,size); :}
+                     | size:size COMMA name:name COMMA background:color {: RESULT = new Canvas("",name,"",color,size); :}
+                     ;

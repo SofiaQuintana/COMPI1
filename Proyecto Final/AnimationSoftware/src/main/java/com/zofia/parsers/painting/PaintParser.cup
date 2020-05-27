@@ -1,0 +1,147 @@
+package com.zofia.parsers.painting;
+import java_cup.runtime.Symbol;
+import com.zofia.lexers.PaintLexer;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Iterator;
+import com.zofia.logic.Environment;
+import com.zofia.logic.Sym.Type;
+import com.zofia.logic.Sym;
+
+parser code {:
+    private LinkedList<Instruction> instructions;
+    private HashMap<String, Image> images;
+    private List<Image> timeImages;
+    private HashMap<String,String> table;
+    private CanvasDriver driver;
+    private ErrorFrame error;
+
+    public TimeParser(TimeLexer lexer, HashMap<String,String> table, CanvasDriver driver, ErrorFrame error) {
+        super(lexer);
+        this.table = table;
+        this.instructions = new LinkedList<>();
+        this.driver = driver;
+        this.error = error;
+    }
+
+    public void syntax_error(Symbol symbol) {
+        /* Pendiente */
+    }
+
+    public void logic_error(String lexeme, int line, int column, int type) {
+        String message;
+        switch(type) {
+            case 0:
+                message = "Error semantico -> Ya existe una imagen con el identificador: " + lexeme +
+                            ", dicha imagen sera descartada.";
+                //Llamar al printer, mandar como parametro mensaje.
+            break;
+            case 1:
+                message = "Error semantico -> No existe un lienzo con el identificador: " + lexeme + 
+                            ", todas las imagenes de dicho identificador seran descartadas.";
+                //Llamar al printer, mandar como parametro el mensaje.
+            break;
+        }
+    }
+
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     CURLYBRACKETO, CURLYBRACKETC, BRACKETC, BRACKETO, PARENTHESISO, PARENTHESISC,
+                    VARS, INT, STRING, BOOLEAN, INSTRUCCIONES, PINTAR, TRUE, FALSE, AND, OR, ID,
+                    COMMA, SEMICOLON, DOT, EQUAL, SAME, LESSTHAN, GREATERTHAN, LESSEQUAL, GREATEREQUAL,
+                    BETWEEN, PLUS, MINUS, STAR, DIAGONAL, STRING_, RANK, COMMENTARY, IF, ELSE, WHILE;
+terminal Integer    INTEGER;    
+
+/* No Terminales... */
+non terminal            starting, timesStructure, canvasTimes,
+                        anotherImage, imagesStructure, endingCanvas;
+non terminal String     idStructure, starter, end;
+non terminal Integer    duration; 
+non terminal Image      imagesPermutations, images;
+non terminal Time       structurePermutations;
+/* Grammar */
+start with starting;
+
+precedence left OR;
+precedence left AND;
+precedence left LESSTHAN, GREATERTHAN, LESSEQUAL, GREATEREQUAL, SAME, BETWEEN;
+predecence left PLUS, MINUS;
+precedence left STAR, DIAGONAL;
+ 
+start with starting;
+
+/* --------------------------------------GENERAL PAINTING STRUCTURE--------------------------------------------*/
+
+/*--------------------------VARIABLES----------------------------*/
+starting ::=  variables instructions;
+variables ::= VARS BRACKETO statementStructure BRACKETC; 
+variableStructure ::= variableStructure statementStructure
+                       | statementStructure
+                       ;
+statementStructure ::= statement:statement SEMICOLON {: RESULT = statement; :}
+                       ;
+
+instructions ::= INSTRUCCIONES PARENTHESISO ID:id PARENTHESISC BRACKETO instructionStructure BRACKETC instructions
+                 | INSTRUCCIONES PARENTHESISO ID:id PARENTHESISC BRACKETO instructionStructure BRACKETC
+                 ;
+
+instructionStructure ::= instructionStructure instruction
+                         | instruction
+                         ;
+
+instruction ::= assignment:assign SEMICOLON {: RESULT = assign; :}
+                | while:while {: RESULT = while; :}
+                | if:if {: RESULT = if; :}
+                | paint:paint SEMICOLON {: RESULT = paint; :}
+                ;
+while ::= WHILE:w PARENTHESISO expression:e PARENTHESISC CURLYBRACKETO instruction:i CURLYBRACKETC {: RESULT = new While(e, i, wright, wleft-1); :}
+          | WHILE:w PARENTHESISO expression:e PARENTHESISC CURLYBRACKETO CURLYBRACKETC {: RESULT = new While(e, null, wright, wleft-1); :}
+          ;
+if ::= IF:if PARENTHESISO expression:e PARENTHESISC CURLYBRACKETO instruction:i CURLYBRACKETC {: RESULT = new If(e,i,ifright,ifleft-1); :}
+       | IF:if PARENTHESISO expression:e PARENTHESISC CURLYBRACKETO CURLYBRACKETC {: RESULT = new If(e,null,ifright,ifleft-1); :}
+       | IF:if PARENTHESISO expression:e PARENTHESISC CURLYBRACKETO instruction:i CURLYBRACKETC else:else {: RESULT = new If(e,i,else,ifright,ifleft-1); :}
+       | IF:if PARENTHESISO expression:e PARENTHESISC CURLYBRACKETO CURLYBRACKETC else:else {: RESULT = new If(e,null,else,ifright,ifleft-1); :}
+       ;
+
+else ::= ELSE CURLYBRACKETO instruction:i CURLYBRACKETC {: RESULT = i; :}
+         | ELSE CURLYBRACKETO CURLYBRACKETC {: RESULT = null; :}
+         ;
+paint ::= PINTAR:p PARENTHESISO idType:color COMMA idType:image COMMA expression:e1 COMMA expression:e2 PARENTHESISC
+          | PINTAR:p PARENTHESISO idType:color COMMA idType:image COMMA RANK:r COMMA expression:e2 PARENTHESISC
+          | PINTAR:p PARENTHESISO idType:color COMMA idType:image COMMA expression:e1 COMMA RANK:r PARENTHESISC
+          | PINTAR:p PARENTHESISO idType:color COMMA idType:image COMMA RANK:r1 COMMA RANK:r2 PARENTHESISC
+          ;
+
+idType ::= ID:id
+           | STRING_:id
+           ;
+
+statement ::= type:type ID:id EQUAL expression:expression {: RESULT = new Statement(id, type, expression, typeright, typeleft-1); :}
+              | type:type ID:id {: RESULT = new Statement(id, type, null, typeright, typeleft-1); :}
+              ;
+
+type ::= INT {: RESULT = Type.integer; :}
+         | STRING {: RESULT = Type.string; :}
+         | BOOLEANO {: RESULT = Type.bool; :}
+         ;
+
+expression ::= expression:e1 PLUS expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.SUMA,e1right, e1left-1); :}
+               | expression:e1 MINUS expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.RESTA,e1right, e1left-1); :}    
+               | expression:e1 STAR expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.MULTIPLICACION,e1right, e1left-1); :}
+               | expression:e1 DIAGONAL expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.DIVISION,e1right, e1left-1); :}
+               | expression:e1 LESSTHAN expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.MENOR_QUE,e1right, e1left-1); :}
+               | expression:e1 GREATERTHAN expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.MAYOR_QUE,e1right, e1left-1); :}
+               | expression:e1 LESSEQUAL expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.MENOR_IGUAL,e1right, e1left-1); :}
+               | expression:e1 GREATEREQUAL expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.MAYOR_IGUAL,e1right, e1left-1); :}
+               | expression:e1 SAME expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.IGUAL_IGUAL,e1right, e1left-1); :}
+               | expression:e1 BETWEEN expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.ENTRE,e1right, e1left-1); :}
+               | expression:e1 AND expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.AND,e1right, e1left-1); :}
+               | expression:e1 OR expression:e2 {: RESULT = new Expression(e1,e2,Expression_type.OR,e1right, e1left-1); :}
+               | MINUS expression:e1 {: RESULT = new Expression(e1,Expression_type.NEGATIVO,e1right, e1left-1); :}
+               | PARENTHESISO expression:e PARENTHESISC {: RESULT = e; :}
+               | INTEGER:e {: RESULT = new Expression(e,eright, eleft-1); :}
+               | STRING_:e {: RESULT = new Expression(e.substring(1, e.lenght - 1), eright, eleft-1); :}
+               | TRUE:t {: RESULT = new Expression(true,tright, tleft-1); :}
+               | FALSE:f {: RESULT = new Expression(false,fright, fleft-1); :}
+               | ID:id {: RESULT = new Expression(id,Expression_type.IDENTIFICADOR,idright, idleft-1); :}

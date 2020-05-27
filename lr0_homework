@@ -1,0 +1,17 @@
+0 E'-> E $
+1 E -> E                  
+2 E -> Ea
+3 E -> Fb
+4 E -> F
+5 F -> (E)
+6 F -> Bbe
+7 F -> Bba 
+8 B -> Ba
+9 B -> C
+10 B -> b
+11 C -> a
+12 C -> CbC 
+
+No es una gramatica reconocible por un automata RL(0), ya que hay varios conflictos entre celdas.
+(Pruebas en tabla sintactica).
+

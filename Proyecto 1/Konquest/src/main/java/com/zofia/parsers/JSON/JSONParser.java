@@ -265,7 +265,7 @@ public class JSONParser extends java_cup.runtime.lr_parser {
     }
 
     public void syntax_error(Symbol symbol) {
-        this.principalFrame.printSyntaxError(String.valueOf(symbol.value), sym.terminalNames[symbol.sym]);
+        this.principalFrame.printSyntaxError(String.valueOf(symbol.value), sym.terminalNames[symbol.sym], symbol.left, symbol.right);
     }
 
     public StructureDriver getStructure() {

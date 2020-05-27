@@ -1,0 +1,113 @@
+package com.zofia.parsers.timers;
+import java_cup.runtime.Symbol;
+import com.zofia.lexers.TimeLexer;
+import com.zofia.dummyclasses.Image;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import com.zofia.dummyclasses.Time;
+import com.zofia.drivers.CanvasDriver;
+import com.zofia.logic.Error;
+
+parser code {:
+    private HashMap<String, Image> images;
+    private List<Image> timeImages;
+    private HashMap<String,String> table;
+    private CanvasDriver driver;
+
+    public TimeParser(TimeLexer lexer, HashMap<String,String> table, CanvasDriver driver) {
+        super(lexer);
+        this.table = table;
+        this.images = new HashMap<>();
+        this.driver = driver;
+        this.timeImages = new ArrayList<>();
+    }
+
+    public void syntax_error(Symbol symbol) {
+        System.out.println("error sintactico en: " + symbol.sym);
+        Error error = new Error(symbol.right,(symbol.left - 1), "Sintactico", "Elemento sintactico desconocido: '" + (String)symbol.value + "'.");
+        driver.getErrors().add(error);
+    }
+
+    public void logic_error(String lexeme, int line, int column, int type) {
+        Error error = null;
+        String message;
+        switch(type) {
+            case 0:
+                message = "Ya existe una imagen con el identificador: " + lexeme + ", dicha imagen se descarto.";
+                error = new Error(line, column, "Semantico", message);
+            break;
+            case 1:
+                message = "No existe un lienzo con el identificador: " + lexeme + ", todas las imagenes de dicho identificador se descartaron.";
+                error = new Error(line, column, "Semantico", message);
+            break;
+        }
+        driver.getErrors().add(error);
+    }
+
+:}
+
+/* Terminales... (tokens returned by the scanner) */
+terminal String     CURLYBRACKETO, CURLYBRACKETC, TIEMPOS, ID, INICIO, FIN, IMAGENES, COLON, 
+                    COMMA, DURACION, QUOTE, BRACKETC, BRACKETO, IDENTIFICADOR;
+terminal Integer    INT;    
+
+/* No Terminales... */
+non terminal            starting, timesStructure, canvasTimes,
+                        anotherImage, imagesStructure, endingCanvas;
+non terminal String     idStructure, starter, end;
+non terminal Integer    duration; 
+non terminal Image      imagesPermutations, images;
+non terminal Time       structurePermutations;
+/* Grammar */
+start with starting;
+
+/* --------------------------------------GENERAL CANVAS JSON STRUCTURE--------------------------------------------*/
+
+starting ::= CURLYBRACKETO timesStructure CURLYBRACKETC;
+timesStructure ::= TIEMPOS COLON CURLYBRACKETO canvasTimes CURLYBRACKETC;
+canvasTimes ::= IDENTIFICADOR:id COLON CURLYBRACKETO structurePermutations:time  
+                {: if(table.get(id) == null) {
+                        logic_error(id, idleft, idright, 1);
+                   } else {
+                        time.setId(id);
+                        driver.addTime(time);
+                        timeImages = new ArrayList<>();
+                        images = new HashMap<>();
+                   }
+                :} endingCanvas;
+structurePermutations ::= starter:start COMMA end:end COMMA images {: RESULT = new Time(start, end, "", timeImages); :}
+                          | starter:start COMMA images COMMA end:end {: RESULT = new Time(start, end, "", timeImages); :}
+                          | end:end COMMA starter:start COMMA images {: RESULT = new Time(start, end, "", timeImages); :}
+                          | end:end COMMA images COMMA starter:start {: RESULT = new Time(start, end, "", timeImages); :}
+                          | images COMMA starter:start COMMA end:end {: RESULT = new Time(start, end, "", timeImages); :}
+                          | images COMMA end:end COMMA starter:start {: RESULT = new Time(start, end, "", timeImages); :}
+                          | error:e endingCanvas {: syntax_error((Symbol) e); :}
+                          ;
+starter ::= INICIO COLON QUOTE IDENTIFICADOR:id QUOTE {: RESULT = id; :}
+            ;
+end ::= FIN COLON QUOTE IDENTIFICADOR:id QUOTE {: RESULT = id; :};
+images ::= IMAGENES COLON BRACKETO imagesStructure BRACKETC
+           ;
+imagesStructure ::= CURLYBRACKETO imagesPermutations:image 
+                    {: if(images.get(image.getId()) == null) {
+                            images.put(image.getId(), image);
+                            timeImages.add(image);
+                       } else {
+                            logic_error(image.getId(), 0,0,0);
+                       }
+                    :} anotherImage;
+
+anotherImage ::= CURLYBRACKETC COMMA imagesStructure
+                 | CURLYBRACKETC
+                 ;
+imagesPermutations ::= idStructure:id COMMA duration:duration {: RESULT = new Image(id, duration); :}
+                       | duration:duration COMMA idStructure:id {: RESULT = new Image(id, duration); :}  
+                       | error:e anotherImage {: syntax_error((Symbol) e); :}
+                       ;
+idStructure ::= ID COLON QUOTE IDENTIFICADOR:id QUOTE {: RESULT = id; :};
+duration ::= DURACION COLON INT:integer {: RESULT = integer; :};
+endingCanvas ::= CURLYBRACKETC COMMA canvasTimes
+                 | CURLYBRACKETC
+                 ;
+
