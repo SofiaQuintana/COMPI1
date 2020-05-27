@@ -71,6 +71,7 @@ specificCanvas ::= ID:id COLON CURLYBRACKETO structure:canvas CURLYBRACKETC
                         logic_error(id, idleft-1, idright);
                       }
                     :} 
+                    | error:e COMMA specificCanvas  {: syntax_error((Symbol) e); :}
                    ;
 structure ::= name:name COMMA namePermutations:canvas {: RESULT = new Canvas("",name,canvas.getType(), canvas.getColor(), canvas.getSquare()); :}
               | type:type COMMA typePermutations:canvas {: RESULT = new Canvas("",canvas.getName(),type.substring(1, (type.length() - 1)), canvas.getColor(), canvas.getSquare()); :}
